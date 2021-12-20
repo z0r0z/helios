@@ -95,13 +95,13 @@ contract Helios is ERC1155 {
         // sort tokens
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
 
-        if (pairSettings[token0][token1][swapStrategy][fee] != 0) revert PairExists();
-
-        pairSettings[token0][token1][swapStrategy][fee] = id;
-
         totalSupply++;
 
         id = totalSupply;
+
+        if (pairSettings[token0][token1][swapStrategy][fee] != 0) revert PairExists();
+
+        pairSettings[token0][token1][swapStrategy][fee] = id;
 
         pairs[id] = Pair({
             token0: token0,
