@@ -5,6 +5,7 @@ pragma solidity >=0.8.0;
 import './ERC1155.sol';
 import './libraries/SafeTransferLib.sol';
 import './ISwap.sol';
+import './utils/Multicall.sol';
 
 /// @notice Multi-strategy multi-token exchange.
 contract Helios is ERC1155 {
