@@ -6,6 +6,7 @@ import './ERC1155.sol';
 import './libraries/SafeTransferLib.sol';
 import './ISwap.sol';
 
+/// @notice Multi-strategy multi-token exchange.
 contract Helios is ERC1155 {
     using SafeTransferLib for address;
 
@@ -40,7 +41,7 @@ contract Helios is ERC1155 {
     error Forbidden();
 
     /*///////////////////////////////////////////////////////////////
-                            EXCHANGE STORAGE
+                            SWAP STORAGE
     //////////////////////////////////////////////////////////////*/
 
     address public feeTo;
@@ -51,6 +52,8 @@ contract Helios is ERC1155 {
     uint256 public totalSupply;
 
     uint256 internal unlocked = 1;
+
+    mapping(address => mapping(address => mapping(address => mapping(uint256 => uint256)))) public pairSettings;
 
     mapping(uint256 => Pair) pairs;
 
@@ -93,7 +96,9 @@ contract Helios is ERC1155 {
 
         id = totalSupply;
 
-        if (pairs[id].swapStrategy != address(0)) revert PairExists();
+        if (pairSettings[tokenA][tokenB][swapStrategy][fee] == 0) revert PairExists();
+
+        pairSettings[tokenA][tokenB][swapStrategy][fee] = id;
 
         // sort tokens
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
