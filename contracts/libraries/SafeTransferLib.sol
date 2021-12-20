@@ -11,11 +11,11 @@ library SafeTransferLib {
                             ERRORS
     //////////////////////////////////////////////////////////////*/
 
-    error ethTransferFailed();
+    error ETHtransferFailed();
 
-    error transferFailed();
+    error TransferFailed();
 
-    error transferFromFailed();
+    error TransferFromFailed();
 
     /*///////////////////////////////////////////////////////////////
                             ETH OPERATIONS
@@ -29,7 +29,7 @@ library SafeTransferLib {
             callStatus := call(gas(), to, amount, 0, 0, 0, 0)
         }
 
-        if (!callStatus) revert ethTransferFailed();
+        if (!callStatus) revert ETHtransferFailed();
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ library SafeTransferLib {
             callStatus := call(gas(), token, 0, freeMemoryPointer, 68, 0, 0)
         }
 
-        if (!_didLastOptionalReturnCallSucceed(callStatus)) revert transferFailed();
+        if (!_didLastOptionalReturnCallSucceed(callStatus)) revert TransferFailed();
     }
 
     function _safeTransferFrom(
@@ -88,7 +88,7 @@ library SafeTransferLib {
             callStatus := call(gas(), token, 0, freeMemoryPointer, 100, 0, 0)
         }
 
-        if (!_didLastOptionalReturnCallSucceed(callStatus)) revert transferFromFailed();
+        if (!_didLastOptionalReturnCallSucceed(callStatus)) revert TransferFromFailed();
     }
 
     /*///////////////////////////////////////////////////////////////
