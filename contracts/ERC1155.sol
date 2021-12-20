@@ -21,7 +21,7 @@ abstract contract ERC1155 {
 
     string public baseURI;
 
-    string public name = "ZoroExchange";
+    string public name = "Helios";
 
     mapping (address => mapping(uint256 => uint256)) internal balances;
 
