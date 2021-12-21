@@ -21,29 +21,24 @@ abstract contract ERC1155 {
 
     string public baseURI;
 
-    string public name = "ZoroExchange";
+    string public name = "Helios";
 
-    mapping (address => mapping(uint256 => uint256)) internal balances;
+    mapping(address => mapping(uint256 => uint256)) internal balanceOf;
 
-    mapping (address => mapping(address => bool)) internal operators;
+    mapping(address => mapping(address => bool)) internal operators;
 
     /*///////////////////////////////////////////////////////////////
                             EIP-2612-LIKE STORAGE
     //////////////////////////////////////////////////////////////*/
     
-    bytes32 public constant PERMIT_TYPEHASH =
-        keccak256('Permit(address spender,uint256 id,uint256 nonce,uint256 deadline)');
-
-    bytes32 public constant PERMIT_ALL_TYPEHASH = 
-        keccak256('Permit(address owner,address spender,uint256 nonce,uint256 deadline)');
+    bytes32 internal constant PERMIT_TYPEHASH =
+        keccak256('Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)');
     
     uint256 internal immutable INITIAL_CHAIN_ID;
 
     bytes32 internal immutable INITIAL_DOMAIN_SEPARATOR;
 
-    mapping(uint256 => uint256) public nonces;
-
-    mapping(address => uint256) public noncesForAll;
+    mapping(address => uint256) public nonces;
 
     /*///////////////////////////////////////////////////////////////
                             ERRORS
@@ -56,6 +51,12 @@ abstract contract ERC1155 {
     error NullAddress();
 
     error InvalidReceiver();
+
+    error SigExpired();
+
+    error InvalidSig();
+
+    error InvalidSigner();
 
     /*///////////////////////////////////////////////////////////////
                             CONSTRUCTOR
@@ -73,17 +74,13 @@ abstract contract ERC1155 {
 
     /* GETTERS */
 
-    function balanceOf(address owner, uint256 id) external view returns (uint256 balance) {
-        balance = balances[owner][id];
-    }
-
     function balanceOfBatch(address[] calldata owners, uint256[] calldata ids) external view returns (uint256[] memory batchBalances) {
         if (owners.length != ids.length) revert ArrayParity();
 
         batchBalances = new uint256[](owners.length);
 
         for (uint256 i = 0; i < owners.length; i++) {
-            batchBalances[i] = balances[owners[i]][ids[i]];
+            batchBalances[i] = balanceOf[owners[i]][ids[i]];
         }
     }
 
@@ -120,9 +117,9 @@ abstract contract ERC1155 {
 
         if (to == address(0)) revert NullAddress();
 
-        balances[from][id] = balances[from][id] - amount;
+        balanceOf[from][id] -= amount;
 
-        balances[to][id] = balances[to][id] + amount;
+        balanceOf[to][id] += amount;
 
         _callonERC1155Received(from, to, id, amount, gasleft(), data);
 
@@ -143,9 +140,9 @@ abstract contract ERC1155 {
         if (ids.length != amounts.length) revert ArrayParity();
 
         for (uint256 i = 0; i < ids.length; i++) {
-            balances[from][ids[i]] = balances[from][ids[i]] - amounts[i];
+            balanceOf[from][ids[i]] -= amounts[i];
 
-            balances[to][ids[i]] = balances[to][ids[i]] + amounts[i];
+            balanceOf[to][ids[i]] += amounts[i];
         }
 
         _callonERC1155BatchReceived(from, to, ids, amounts, gasleft(), data);
@@ -211,6 +208,40 @@ abstract contract ERC1155 {
         );
     }
 
+    function permit(
+        address owner,
+        address operator,
+        bool approved,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual {
+        if (block.timestamp > deadline) revert SigExpired();
+   
+        // this is reasonably safe from overflow because incrementing `nonces` beyond
+        // 'type(uint256).max' is exceedingly unlikely compared to optimization benefits
+        unchecked {
+            bytes32 digest = keccak256(
+                abi.encodePacked(
+                    '\x19\x01',
+                    DOMAIN_SEPARATOR(),
+                    keccak256(abi.encode(PERMIT_TYPEHASH, owner, operator, approved, nonces[owner]++, deadline))
+                )
+            );
+
+            address recoveredAddress = ecrecover(digest, v, r, s);
+
+            if (recoveredAddress == address(0)) revert InvalidSig();
+
+            if (recoveredAddress != owner) revert InvalidSigner();
+        }
+        
+        operators[owner][operator] = approved;
+
+        emit ApprovalForAll(owner, operator, approved);
+    }
+
     /*///////////////////////////////////////////////////////////////
                             MINT/BURN LOGIC
     //////////////////////////////////////////////////////////////*/
@@ -221,7 +252,7 @@ abstract contract ERC1155 {
         uint256 amount, 
         bytes calldata data
     ) internal {
-        balances[to][id] += amount;
+        balanceOf[to][id] += amount;
 
         if (to.code.length != 0) _callonERC1155Received(address(0), to, id, amount, gasleft(), data);
 
@@ -237,7 +268,7 @@ abstract contract ERC1155 {
         if (ids.length != amounts.length) revert ArrayParity();
 
         for (uint256 i = 0; i < ids.length; i++) {
-            balances[to][ids[i]] += amounts[i];
+            balanceOf[to][ids[i]] += amounts[i];
         }
 
         if (to.code.length != 0) _callonERC1155BatchReceived(address(0x0), to, ids, amounts, gasleft(), data);
@@ -250,7 +281,7 @@ abstract contract ERC1155 {
         uint256 id, 
         uint256 amount
     ) internal {
-        balances[from][id] -= amount;
+        balanceOf[from][id] -= amount;
 
         emit TransferSingle(msg.sender, from, address(0x0), id, amount);
     }
@@ -263,7 +294,7 @@ abstract contract ERC1155 {
         if (ids.length != amounts.length) revert ArrayParity();
 
         for (uint256 i = 0; i < ids.length; i++) {
-            balances[from][ids[i]] -= amounts[i];
+            balanceOf[from][ids[i]] -= amounts[i];
         }
 
         emit TransferBatch(msg.sender, from, address(0x0), ids, amounts);
