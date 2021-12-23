@@ -81,11 +81,11 @@ contract Helios is ERC1155 {
 
     function createPair(
         address to,
-        address tokenA, 
-        address tokenB, 
-        uint256 token0amount,
-        uint256 token1amount,
-        address swapStrategy, 
+        address tokenA,
+        address tokenB,
+        uint256 tokenAamount,
+        uint256 tokenBamount,
+        address swapStrategy,
         uint256 fee,
         bytes calldata data
     ) external payable lock returns (uint256 id, uint256 lp) {
@@ -93,8 +93,18 @@ contract Helios is ERC1155 {
 
         if (swapStrategy == address(0)) revert NullStrategy();
 
+        // sort tokens and amounts
+        
         // sort tokens
+        (address token0, address token1) = (tokenA, tokenB);
+        (uint256 token0amount, uint256 token1amount) = (tokenAamount, tokenBamount);
+        
+        if (tokenB > tokenA){
+            (token0, token1) = (tokenB, tokenA);
+            (token0amount, token1amount) = (tokenBamount, tokenAamount);
+        }
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        (uint256 token0amount, uint256 token1amount) = tokenA < tokenB ? (tokenAamount, tokenBamount) : (tokenBamount, tokenAamount);
 
         if (pairSettings[token0][token1][swapStrategy][fee] != 0) revert PairExists();
 
