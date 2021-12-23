@@ -96,11 +96,11 @@ contract Helios is ERC1155 {
         // sort tokens
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
 
+        if (pairSettings[token0][token1][swapStrategy][fee] != 0) revert PairExists();
+
         totalSupply++;
 
         id = totalSupply;
-
-        if (pairSettings[token0][token1][swapStrategy][fee] != 0) revert PairExists();
 
         pairSettings[token0][token1][swapStrategy][fee] = id;
 
@@ -134,9 +134,9 @@ contract Helios is ERC1155 {
         uint256 token1amount,
         bytes calldata data
     ) external payable lock returns (uint256 lp) {
-        Pair storage pair = pairs[id];
-
         if (id > totalSupply) revert NoPair();
+
+        Pair storage pair = pairs[id];
 
         // if base is address(0), assume ETH and overwrite amount
         if (pair.token0 == address(0)) token0amount = msg.value;
@@ -161,9 +161,9 @@ contract Helios is ERC1155 {
     function removeLiquidity(address to, uint256 id, uint256 lp) external payable lock returns (
         uint256 amount0out, uint256 amount1out
     ) {
-        Pair storage pair = pairs[id];
-
         if (id > totalSupply) revert NoPair();
+
+        Pair storage pair = pairs[id];
 
         _burn(
             msg.sender,
@@ -191,6 +191,8 @@ contract Helios is ERC1155 {
         address tokenIn, 
         uint256 amountIn
     ) external payable lock returns (uint256 amountOut) {
+        if (id > totalSupply) revert NoPair();
+
         Pair storage pair = pairs[id];
 
         if (tokenIn == address(0)) {
