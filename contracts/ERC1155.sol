@@ -9,36 +9,23 @@ abstract contract ERC1155 {
                             EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 amount);
+    event TransferSingle(
+        address indexed operator,
+        address indexed from,
+        address indexed to,
+        uint256 id,
+        uint256 amount
+    );
 
-    event TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] amounts);
+    event TransferBatch(
+        address indexed operator,
+        address indexed from,
+        address indexed to,
+        uint256[] ids,
+        uint256[] amounts
+    );
 
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
-
-    /*///////////////////////////////////////////////////////////////
-                            ERC1155 STORAGE
-    //////////////////////////////////////////////////////////////*/
-
-    string public baseURI;
-
-    string public name = "Helios";
-
-    mapping(address => mapping(uint256 => uint256)) internal balanceOf;
-
-    mapping(address => mapping(address => bool)) internal operators;
-
-    /*///////////////////////////////////////////////////////////////
-                            EIP-2612-LIKE STORAGE
-    //////////////////////////////////////////////////////////////*/
-    
-    bytes32 internal constant PERMIT_TYPEHASH =
-        keccak256('Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)');
-    
-    uint256 internal immutable INITIAL_CHAIN_ID;
-
-    bytes32 internal immutable INITIAL_DOMAIN_SEPARATOR;
-
-    mapping(address => uint256) public nonces;
 
     /*///////////////////////////////////////////////////////////////
                             ERRORS
@@ -59,6 +46,33 @@ abstract contract ERC1155 {
     error InvalidSigner();
 
     /*///////////////////////////////////////////////////////////////
+                            ERC-1155 STORAGE
+    //////////////////////////////////////////////////////////////*/
+
+    string public baseURI;
+
+    string public name = "Helios";
+
+    mapping(address => mapping(uint256 => uint256)) public balanceOf;
+
+    mapping(address => mapping(address => bool)) public isApprovedForAll;
+
+    mapping(address => mapping(address => bool)) internal operators;
+
+    /*///////////////////////////////////////////////////////////////
+                            EIP-2612-LIKE STORAGE
+    //////////////////////////////////////////////////////////////*/
+    
+    bytes32 internal constant PERMIT_TYPEHASH =
+        keccak256('Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)');
+    
+    uint256 internal immutable INITIAL_CHAIN_ID;
+
+    bytes32 internal immutable INITIAL_DOMAIN_SEPARATOR;
+
+    mapping(address => uint256) public nonces;
+
+    /*///////////////////////////////////////////////////////////////
                             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
     
@@ -69,10 +83,8 @@ abstract contract ERC1155 {
     }
 
     /*///////////////////////////////////////////////////////////////
-                            ERC1155 LOGIC
+                            ERC-1155 LOGIC
     //////////////////////////////////////////////////////////////*/
-
-    /* GETTERS */
 
     function balanceOfBatch(address[] calldata owners, uint256[] calldata ids) external view returns (uint256[] memory batchBalances) {
         if (owners.length != ids.length) revert ArrayParity();
@@ -84,27 +96,15 @@ abstract contract ERC1155 {
         }
     }
 
-    function supportsInterface(bytes4 interfaceId) external pure returns (bool supported) {
-        supported = interfaceId == 0xd9b67a26 || interfaceId == 0x0e89341c;
-    }
-
     function uri(uint256) external view returns (string memory meta) {
         meta = baseURI;
     }
 
-    /* APPROVALS */
-
-    function isApprovedForAll(address owner, address operator) public view returns (bool isOperator) {
-        isOperator = operators[owner][operator];
-    }
-    
     function setApprovalForAll(address operator, bool approved) external {
         operators[msg.sender][operator] = approved;
 
         emit ApprovalForAll(msg.sender, operator, approved);
     }
-
-    /* TRANSFERS */
 
     function safeTransferFrom(
         address from, 
@@ -113,7 +113,7 @@ abstract contract ERC1155 {
         uint256 amount, 
         bytes calldata data
     ) external {
-        if (msg.sender != from || !isApprovedForAll(from, msg.sender)) revert InvalidOperator();
+        if (msg.sender != from || !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
         if (to == address(0)) revert NullAddress();
 
@@ -133,7 +133,7 @@ abstract contract ERC1155 {
         uint256[] calldata amounts, 
         bytes calldata data
     ) external {
-        if (msg.sender != from || !isApprovedForAll(from, msg.sender)) revert InvalidOperator();
+        if (msg.sender != from || !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
         if (to == address(0)) revert NullAddress();
 
@@ -240,6 +240,17 @@ abstract contract ERC1155 {
         operators[owner][operator] = approved;
 
         emit ApprovalForAll(owner, operator, approved);
+    }
+
+    /*///////////////////////////////////////////////////////////////
+                              ERC-165 LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    function supportsInterface(bytes4 interfaceId) public pure virtual returns (bool id) {
+        id =
+            interfaceId == 0x5b5e139f || // ERC165 Interface ID for ERC165
+            interfaceId == 0xd9b67a26 || // ERC165 Interface ID for ERC1155
+            interfaceId == 0x0e89341c; // ERC165 Interface ID for ERC1155MetadataURI
     }
 
     /*///////////////////////////////////////////////////////////////
