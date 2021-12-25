@@ -5,61 +5,59 @@ pragma solidity >=0.8.4;
 /// @notice Babylonian method for computing square roots.
 /// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/FixedPointMathLib.sol)
 library SqrtMath {
-    function sqrt(uint256 x) internal pure returns (uint256 result) {
+    function sqrt(uint256 x) internal pure returns (uint256 z) {
         assembly {
-            // if x is zero, just return 0
-            if iszero(iszero(x)) {
-                // start off with a result of 1
-                result := 1
+            // start off with z at 1
+            z := 1
 
-                // used below to help find a nearby power of 2
-                let x2 := x
+            // used below to help find a nearby power of 2
+            let y := x
 
-                // find the closest power of 2 that is at most x
-                if iszero(lt(x2, 0x100000000000000000000000000000000)) {
-                    x2 := shr(128, x2) // like dividing by 2^128
-                    result := shl(64, result)
-                }
-                if iszero(lt(x2, 0x10000000000000000)) {
-                    x2 := shr(64, x2) // like dividing by 2^64
-                    result := shl(32, result)
-                }
-                if iszero(lt(x2, 0x100000000)) {
-                    x2 := shr(32, x2) // like dividing by 2^32
-                    result := shl(16, result)
-                }
-                if iszero(lt(x2, 0x10000)) {
-                    x2 := shr(16, x2) // like dividing by 2^16
-                    result := shl(8, result)
-                }
-                if iszero(lt(x2, 0x100)) {
-                    x2 := shr(8, x2) // like dividing by 2^8
-                    result := shl(4, result)
-                }
-                if iszero(lt(x2, 0x10)) {
-                    x2 := shr(4, x2) // like dividing by 2^4
-                    result := shl(2, result)
-                }
-                if iszero(lt(x2, 0x8)) {
-                    result := shl(1, result)
-                }
+            // find the lowest power of 2 that is at least sqrt(x)
+            if iszero(lt(y, 0x100000000000000000000000000000000)) {
+                y := shr(128, y) // like dividing by 2 ** 128
+                z := shl(64, z)
+            }
+            if iszero(lt(y, 0x10000000000000000)) {
+                y := shr(64, y) // like dividing by 2 ** 64
+                z := shl(32, z)
+            }
+            if iszero(lt(y, 0x100000000)) {
+                y := shr(32, y) // like dividing by 2 ** 32
+                z := shl(16, z)
+            }
+            if iszero(lt(y, 0x10000)) {
+                y := shr(16, y) // like dividing by 2 ** 16
+                z := shl(8, z)
+            }
+            if iszero(lt(y, 0x100)) {
+                y := shr(8, y) // like dividing by 2 ** 8
+                z := shl(4, z)
+            }
+            if iszero(lt(y, 0x10)) {
+                y := shr(4, y) // like dividing by 2 ** 4
+                z := shl(2, z)
+            }
+            if iszero(lt(y, 0x8)) {
+                // equivalent to 2 ** z
+                z := shl(1, z)
+            }
 
-                // shifting right by 1 is like dividing by 2
-                result := shr(1, add(result, div(x, result)))
-                result := shr(1, add(result, div(x, result)))
-                result := shr(1, add(result, div(x, result)))
-                result := shr(1, add(result, div(x, result)))
-                result := shr(1, add(result, div(x, result)))
-                result := shr(1, add(result, div(x, result)))
-                result := shr(1, add(result, div(x, result)))
+            // shifting right by 1 is like dividing by 2
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
+            z := shr(1, add(z, div(x, z)))
 
-                // compute a rounded down version of the result
-                let roundedDownResult := div(x, result)
+            // compute a rounded down version of z
+            let zRoundDown := div(x, z)
 
-                // if the rounded down result is smaller, use it
-                if gt(result, roundedDownResult) {
-                    result := roundedDownResult
-                }
+            // if zRoundDown is smaller, use it
+            if lt(zRoundDown, z) {
+                z := zRoundDown
             }
         }
     }
