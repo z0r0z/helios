@@ -2,6 +2,26 @@
 
 pragma solidity >=0.8.4;
 
+/// @notice A generic interface for a contract which properly accepts ERC1155 tokens.
+/// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC1155.sol)
+interface ERC1155TokenReceiver {
+    function onERC1155Received(
+        address operator,
+        address from,
+        uint256 id,
+        uint256 amount,
+        bytes calldata data
+    ) external returns (bytes4);
+
+    function onERC1155BatchReceived(
+        address operator,
+        address from,
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
+        bytes calldata data
+    ) external returns (bytes4);
+}
+
 /// @notice Modern and gas-optimized ERC-1155 implementation.
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC1155.sol)
 abstract contract ERC1155 {
@@ -35,8 +55,6 @@ abstract contract ERC1155 {
 
     error InvalidOperator();
 
-    error NullAddress();
-
     error InvalidReceiver();
 
     error SigExpired();
@@ -48,12 +66,6 @@ abstract contract ERC1155 {
     /*///////////////////////////////////////////////////////////////
                             ERC-1155 STORAGE
     //////////////////////////////////////////////////////////////*/
-
-    string public baseURI;
-
-    string public constant name = "Helios";
-
-    string public constant symbol = "HELI";
 
     mapping(address => mapping(uint256 => uint256)) public balanceOf;
 
@@ -71,6 +83,22 @@ abstract contract ERC1155 {
     bytes32 internal immutable INITIAL_DOMAIN_SEPARATOR;
 
     mapping(address => uint256) public nonces;
+
+    /*///////////////////////////////////////////////////////////////
+                            METADATA
+    //////////////////////////////////////////////////////////////*/
+
+    string public baseURI = "PLACEHOLDER";
+
+    string public constant name = "Helios";
+
+    string public constant symbol = "HELI";
+
+    /*///////////////////////////////////////////////////////////////
+                            SUPPLY STORAGE
+    //////////////////////////////////////////////////////////////*/
+
+    mapping(uint256 => uint256) totalSupplyForId;
 
     /*///////////////////////////////////////////////////////////////
                             CONSTRUCTOR
@@ -132,10 +160,9 @@ abstract contract ERC1155 {
 
         emit TransferSingle(msg.sender, from, to, id, amount);
 
-        if (to.code.length != 0
-                ? to == address(0)
-                : ERC1155TokenReceiver(to).onERC1155Received(msg.sender, from, id, amount, data) !=
-                    ERC1155TokenReceiver.onERC1155Received.selector
+        if (to.code.length != 0 &&
+            ERC1155TokenReceiver(to).onERC1155Received(msg.sender, from, id, amount, data) !=
+                ERC1155TokenReceiver.onERC1155Received.selector
         ) revert InvalidReceiver();
     }
 
@@ -168,10 +195,9 @@ abstract contract ERC1155 {
 
         emit TransferBatch(msg.sender, from, to, ids, amounts);
 
-        if (to.code.length != 0
-                ? to == address(0)
-                : ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, from, ids, amounts, data) !=
-                    ERC1155TokenReceiver.onERC1155BatchReceived.selector
+        if (to.code.length != 0 &&
+            ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, from, ids, amounts, data) !=
+                ERC1155TokenReceiver.onERC1155BatchReceived.selector
         ) revert InvalidReceiver();
     }
 
@@ -253,12 +279,13 @@ abstract contract ERC1155 {
     ) internal {
         balanceOf[to][id] += amount;
 
+        totalSupplyForId[id] += amount;
+
         emit TransferSingle(msg.sender, address(0), to, id, amount);
 
-        if (to.code.length != 0
-                ? to == address(0)
-                : ERC1155TokenReceiver(to).onERC1155Received(msg.sender, address(0), id, amount, data) !=
-                    ERC1155TokenReceiver.onERC1155Received.selector
+        if (to.code.length != 0 &&
+            ERC1155TokenReceiver(to).onERC1155Received(msg.sender, address(0), id, amount, data) !=
+                ERC1155TokenReceiver.onERC1155Received.selector
         ) revert InvalidReceiver();
     }
 
@@ -280,15 +307,28 @@ abstract contract ERC1155 {
             unchecked {
                 i++;
             }
+
+            totalSupplyForId[ids[i]] += amounts[i];
         }
 
         emit TransferBatch(msg.sender, address(0), to, ids, amounts);
 
-        if (to.code.length != 0
-                ? to == address(0)
-                : ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, address(0), ids, amounts, data) !=
-                    ERC1155TokenReceiver.onERC1155Received.selector
+        if (to.code.length != 0 &&
+            ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, address(0), ids, amounts, data) !=
+                ERC1155TokenReceiver.onERC1155Received.selector
         ) revert InvalidReceiver();
+    }
+
+    function _burn(
+        address from,
+        uint256 id,
+        uint256 amount
+    ) internal {
+        balanceOf[from][id] -= amount;
+
+        totalSupplyForId[id] -= amount;
+
+        emit TransferSingle(msg.sender, from, address(0), id, amount);
     }
 
     function _batchBurn(
@@ -308,38 +348,10 @@ abstract contract ERC1155 {
             unchecked {
                 i++;
             }
+
+            totalSupplyForId[ids[i]] -= amounts[i];
         }
 
         emit TransferBatch(msg.sender, from, address(0), ids, amounts);
     }
-
-    function _burn(
-        address from,
-        uint256 id,
-        uint256 amount
-    ) internal {
-        balanceOf[from][id] -= amount;
-
-        emit TransferSingle(msg.sender, from, address(0), id, amount);
-    }
-}
-
-/// @notice A generic interface for a contract which properly accepts ERC1155 tokens.
-/// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC1155.sol)
-interface ERC1155TokenReceiver {
-    function onERC1155Received(
-        address operator,
-        address from,
-        uint256 id,
-        uint256 amount,
-        bytes calldata data
-    ) external returns (bytes4);
-
-    function onERC1155BatchReceived(
-        address operator,
-        address from,
-        uint256[] calldata ids,
-        uint256[] calldata amounts,
-        bytes calldata data
-    ) external returns (bytes4);
 }
