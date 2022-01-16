@@ -51,13 +51,13 @@ abstract contract ERC1155 {
 
     string public baseURI;
 
-    string public name = "Helios";
+    string public constant name = "Helios";
+
+    string public constant symbol = "HELI";
 
     mapping(address => mapping(uint256 => uint256)) public balanceOf;
 
     mapping(address => mapping(address => bool)) public isApprovedForAll;
-
-    mapping(address => mapping(address => bool)) internal operators;
 
     /*///////////////////////////////////////////////////////////////
                             EIP-2612-LIKE STORAGE
@@ -86,126 +86,114 @@ abstract contract ERC1155 {
                             ERC-1155 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function balanceOfBatch(address[] calldata owners, uint256[] calldata ids) external view returns (uint256[] memory batchBalances) {
+    function balanceOfBatch(address[] memory owners, uint256[] memory ids)
+        public
+        view
+        virtual
+        returns (uint256[] memory balances)
+    {
+        uint256 ownersLength = owners.length; // saves MLOADs
+
         if (owners.length != ids.length) revert ArrayParity();
 
-        batchBalances = new uint256[](owners.length);
+        balances = new uint256[](owners.length);
 
-        for (uint256 i = 0; i < owners.length; i++) {
-            batchBalances[i] = balanceOf[owners[i]][ids[i]];
+        // unchecked because the only math done is incrementing
+        // the array index counter which cannot possibly overflow
+        unchecked {
+            for (uint256 i = 0; i < ownersLength; i++) {
+                balances[i] = balanceOf[owners[i]][ids[i]];
+            }
         }
     }
 
-    function uri(uint256) external view returns (string memory meta) {
-        meta = baseURI;
+    function uri(uint256) public view virtual returns (string memory) {
+        return baseURI;
     }
 
-    function setApprovalForAll(address operator, bool approved) external {
-        operators[msg.sender][operator] = approved;
+    function setApprovalForAll(address operator, bool approved) public virtual {
+        isApprovedForAll[msg.sender][operator] = approved;
 
         emit ApprovalForAll(msg.sender, operator, approved);
     }
 
     function safeTransferFrom(
-        address from, 
-        address to, 
-        uint256 id, 
-        uint256 amount, 
-        bytes calldata data
-    ) external {
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public virtual {
         if (msg.sender != from || !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
-
-        if (to == address(0)) revert NullAddress();
 
         balanceOf[from][id] -= amount;
 
         balanceOf[to][id] += amount;
 
-        _callonERC1155Received(from, to, id, amount, gasleft(), data);
-
         emit TransferSingle(msg.sender, from, to, id, amount);
+
+        if (to.code.length != 0
+                ? to == address(0)
+                : ERC1155TokenReceiver(to).onERC1155Received(msg.sender, from, id, amount, data) !=
+                    ERC1155TokenReceiver.onERC1155Received.selector
+        ) revert InvalidReceiver();
     }
 
     function safeBatchTransferFrom(
-        address from, 
-        address to, 
-        uint256[] calldata ids, 
-        uint256[] calldata amounts, 
-        bytes calldata data
-    ) external {
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) public virtual {
+        uint256 idsLength = ids.length; // saves MLOADs
+
+        if (idsLength != amounts.length) revert ArrayParity();
+
         if (msg.sender != from || !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
-        if (to == address(0)) revert NullAddress();
+        for (uint256 i = 0; i < idsLength; ) {
+            uint256 id = ids[i];
+            uint256 amount = amounts[i];
 
-        if (ids.length != amounts.length) revert ArrayParity();
+            balanceOf[from][id] -= amount;
+            balanceOf[to][id] += amount;
 
-        for (uint256 i = 0; i < ids.length; i++) {
-            balanceOf[from][ids[i]] -= amounts[i];
-
-            balanceOf[to][ids[i]] += amounts[i];
+            // an array can't have a total length
+            // larger than the max uint256 value
+            unchecked {
+                i++;
+            }
         }
-
-        _callonERC1155BatchReceived(from, to, ids, amounts, gasleft(), data);
 
         emit TransferBatch(msg.sender, from, to, ids, amounts);
-    }
 
-    function _callonERC1155Received(
-        address from, 
-        address to, 
-        uint256 id, 
-        uint256 amount, 
-        uint256 gasLimit, 
-        bytes calldata data
-    ) internal view {
-        if (to.code.length != 0) {
-            // selector = `bytes4(keccak256('onERC1155Received(address,address,uint256,uint256,bytes)'))`
-            (, bytes memory returned) = to.staticcall{gas: gasLimit}(abi.encodeWithSelector(0xf23a6e61,
-                msg.sender, from, id, amount, data));
-                
-            bytes4 selector = abi.decode(returned, (bytes4));
-
-            if (selector != 0xf23a6e61) revert InvalidReceiver();
-        }
-    }
-
-    function _callonERC1155BatchReceived(
-        address from, 
-        address to, 
-        uint256[] calldata ids, 
-        uint256[] calldata amounts, 
-        uint256 gasLimit, 
-        bytes calldata data
-    ) internal view {
-        if (to.code.length != 0) {
-            // selector = `bytes4(keccak256('onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)'))`
-            (, bytes memory returned) = to.staticcall{gas: gasLimit}(abi.encodeWithSelector(0xbc197c81,
-                msg.sender, from, ids, amounts, data));
-                
-            bytes4 selector = abi.decode(returned, (bytes4));
-
-            if (selector != 0xbc197c81) revert InvalidReceiver();
-        }
+        if (to.code.length != 0
+                ? to == address(0)
+                : ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, from, ids, amounts, data) !=
+                    ERC1155TokenReceiver.onERC1155BatchReceived.selector
+        ) revert InvalidReceiver();
     }
 
     /*///////////////////////////////////////////////////////////////
                             EIP-2612-LIKE LOGIC
     //////////////////////////////////////////////////////////////*/
     
-    function DOMAIN_SEPARATOR() public view virtual returns (bytes32 domainSeparator) {
-        domainSeparator = block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
+    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
+        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
     }
 
-    function _computeDomainSeparator() internal view virtual returns (bytes32 domainSeparator) {
-        domainSeparator = keccak256(
-            abi.encode(
-                keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
-                keccak256(bytes(name)),
-                keccak256(bytes('1')),
-                block.chainid,
-                address(this)
-            )
-        );
+    function _computeDomainSeparator() internal view virtual returns (bytes32) {
+        return 
+            keccak256(
+                abi.encode(
+                    keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+                    keccak256(bytes(name)),
+                    bytes('1'),
+                    block.chainid,
+                    address(this)
+                )
+            );
     }
 
     function permit(
@@ -236,8 +224,8 @@ abstract contract ERC1155 {
 
             if (recoveredAddress != owner) revert InvalidSigner();
         }
-        
-        operators[owner][operator] = approved;
+
+        isApprovedForAll[owner][operator] = approved;
 
         emit ApprovalForAll(owner, operator, approved);
     }
@@ -246,11 +234,11 @@ abstract contract ERC1155 {
                               ERC-165 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function supportsInterface(bytes4 interfaceId) public pure virtual returns (bool id) {
-        id =
-            interfaceId == 0x5b5e139f || // ERC165 Interface ID for ERC165
-            interfaceId == 0xd9b67a26 || // ERC165 Interface ID for ERC1155
-            interfaceId == 0x0e89341c; // ERC165 Interface ID for ERC1155MetadataURI
+    function supportsInterface(bytes4 interfaceId) public pure virtual returns (bool) {
+        return
+            interfaceId == 0x01ffc9a7 || // ERC-165 Interface ID for ERC-165
+            interfaceId == 0xd9b67a26 || // ERC-165 Interface ID for ERC-1155
+            interfaceId == 0x0e89341c; // ERC-165 Interface ID for ERC-1155 MetadataURI
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -258,56 +246,100 @@ abstract contract ERC1155 {
     //////////////////////////////////////////////////////////////*/
 
     function _mint(
-        address to, 
-        uint256 id, 
-        uint256 amount, 
-        bytes calldata data
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
     ) internal {
         balanceOf[to][id] += amount;
 
-        if (to.code.length != 0) _callonERC1155Received(address(0), to, id, amount, gasleft(), data);
-
         emit TransferSingle(msg.sender, address(0), to, id, amount);
+
+        if (to.code.length != 0
+                ? to == address(0)
+                : ERC1155TokenReceiver(to).onERC1155Received(msg.sender, address(0), id, amount, data) !=
+                    ERC1155TokenReceiver.onERC1155Received.selector
+        ) revert InvalidReceiver();
     }
 
     function _batchMint(
-        address to, 
-        uint256[] calldata ids, 
-        uint256[] calldata amounts, 
-        bytes calldata data
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
     ) internal {
-        if (ids.length != amounts.length) revert ArrayParity();
+        uint256 idsLength = ids.length; // saves MLOADs
 
-        for (uint256 i = 0; i < ids.length; i++) {
+        require(idsLength == amounts.length, "LENGTH_MISMATCH");
+
+        for (uint256 i = 0; i < idsLength; ) {
             balanceOf[to][ids[i]] += amounts[i];
+
+            // an array can't have a total length
+            // larger than the max uint256 value
+            unchecked {
+                i++;
+            }
         }
 
-        if (to.code.length != 0) _callonERC1155BatchReceived(address(0x0), to, ids, amounts, gasleft(), data);
-
         emit TransferBatch(msg.sender, address(0), to, ids, amounts);
+
+        if (to.code.length != 0
+                ? to == address(0)
+                : ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, address(0), ids, amounts, data) !=
+                    ERC1155TokenReceiver.onERC1155Received.selector
+        ) revert InvalidReceiver();
+    }
+
+    function _batchBurn(
+        address from,
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) internal {
+        uint256 idsLength = ids.length; // Saves MLOADs.
+
+        require(idsLength == amounts.length, "LENGTH_MISMATCH");
+
+        for (uint256 i = 0; i < idsLength; ) {
+            balanceOf[from][ids[i]] -= amounts[i];
+
+            // An array can't have a total length
+            // larger than the max uint256 value.
+            unchecked {
+                i++;
+            }
+        }
+
+        emit TransferBatch(msg.sender, from, address(0), ids, amounts);
     }
 
     function _burn(
-        address from, 
-        uint256 id, 
+        address from,
+        uint256 id,
         uint256 amount
     ) internal {
         balanceOf[from][id] -= amount;
 
-        emit TransferSingle(msg.sender, from, address(0x0), id, amount);
+        emit TransferSingle(msg.sender, from, address(0), id, amount);
     }
+}
 
-    function _batchBurn(
-        address from, 
-        uint256[] calldata ids, 
-        uint256[] calldata amounts
-    ) internal {
-        if (ids.length != amounts.length) revert ArrayParity();
+/// @notice A generic interface for a contract which properly accepts ERC1155 tokens.
+/// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC1155.sol)
+interface ERC1155TokenReceiver {
+    function onERC1155Received(
+        address operator,
+        address from,
+        uint256 id,
+        uint256 amount,
+        bytes calldata data
+    ) external returns (bytes4);
 
-        for (uint256 i = 0; i < ids.length; i++) {
-            balanceOf[from][ids[i]] -= amounts[i];
-        }
-
-        emit TransferBatch(msg.sender, from, address(0x0), ids, amounts);
-    }
+    function onERC1155BatchReceived(
+        address operator,
+        address from,
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
+        bytes calldata data
+    ) external returns (bytes4);
 }
