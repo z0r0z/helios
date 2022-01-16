@@ -6,6 +6,7 @@ import './ERC1155.sol';
 import './libraries/SafeTransferLib.sol';
 import './ISwap.sol';
 import './utils/Multicall.sol';
+import './utils/ReentrancyGuard.sol';
 
 /// @notice Multi-strategy multi-token exchange.
 contract Helios is ERC1155, Multicall, ReentrancyGuard {
