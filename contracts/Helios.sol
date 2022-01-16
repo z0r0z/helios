@@ -8,7 +8,7 @@ import './ISwap.sol';
 import './utils/Multicall.sol';
 
 /// @notice Multi-strategy multi-token exchange.
-contract Helios is ERC1155 {
+contract Helios is ERC1155, Multicall, ReentrancyGuard {
     using SafeTransferLib for address;
 
     /*///////////////////////////////////////////////////////////////
@@ -39,20 +39,14 @@ contract Helios is ERC1155 {
 
     error NoLiquidity();
 
-    error Forbidden();
+    error NotPairToken();
 
     /*///////////////////////////////////////////////////////////////
                             SWAP STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    address public feeTo;
-    
-    address public feeToSetter;
-
     /// @dev tracks new LP ids
     uint256 public totalSupply;
-
-    uint256 internal unlocked = 1;
 
     mapping(address => mapping(address => mapping(address => mapping(uint256 => uint256)))) public pairSettings;
 
@@ -62,22 +56,14 @@ contract Helios is ERC1155 {
         address token0;
         address token1;
         address swapStrategy;
+        uint112 reserve0;
+        uint112 reserve1;
         uint256 fee;
     }
 
     /*///////////////////////////////////////////////////////////////
                             SWAP LOGIC
     //////////////////////////////////////////////////////////////*/
-
-    modifier lock() {
-        if (unlocked == 2) revert Locked();
-
-        unlocked = 2;
-
-        _;
-
-        unlocked = 1;
-    }
 
     function createPair(
         address to,
@@ -88,7 +74,7 @@ contract Helios is ERC1155 {
         address swapStrategy,
         uint256 fee,
         bytes calldata data
-    ) external payable lock returns (uint256 id, uint256 lp) {
+    ) public payable nonReentrant virtual returns (uint256 id, uint256 lp) {
         if (tokenA == tokenB) revert IdenticalTokens();
 
         if (swapStrategy == address(0)) revert NullStrategy();
@@ -104,9 +90,20 @@ contract Helios is ERC1155 {
 
         if (pairSettings[token0][token1][swapStrategy][fee] != 0) revert PairExists();
 
-        totalSupply++;
+        // if ETH attached, overwrite token0 and token0amount
+        if (msg.value != 0) {
+            token0 = address(0);
 
-        id = totalSupply;
+            token0amount = uint112(msg.value);
+
+            token1._safeTransferFrom(msg.sender, address(this), token1amount);
+        } else {
+            token0._safeTransferFrom(msg.sender, address(this), token0amount);
+
+            token1._safeTransferFrom(msg.sender, address(this), token1amount);
+        }
+
+        id = totalSupply++;
 
         pairSettings[token0][token1][swapStrategy][fee] = id;
 
@@ -114,14 +111,13 @@ contract Helios is ERC1155 {
             token0: token0,
             token1: token1,
             swapStrategy: swapStrategy,
+            reserve0: uint112(token0amount),
+            reserve1: uint112(token1amount),
             fee: fee
         });
 
-        // if base is address(0), assume ETH and overwrite amount
-        if (token0 == address(0)) token0amount = msg.value;
-
         // strategy dictates output LP
-        lp = ISwap(swapStrategy).addLiquidity(token0amount, token1amount);
+        lp = ISwap(swapStrategy).addLiquidity(id, token0amount, token1amount);
 
         _mint(
             to,
@@ -139,20 +135,30 @@ contract Helios is ERC1155 {
         uint256 token0amount,
         uint256 token1amount,
         bytes calldata data
-    ) external payable lock returns (uint256 lp) {
+    ) public payable nonReentrant virtual returns (uint256 lp) {
         if (id > totalSupply) revert NoPair();
 
         Pair storage pair = pairs[id];
 
         // if base is address(0), assume ETH and overwrite amount
-        if (pair.token0 == address(0)) token0amount = msg.value;
+        if (pair.token0 == address(0)) {
+            token0amount = uint112(msg.value);
 
-        pair.token1._safeTransferFrom(msg.sender, address(this), token1amount);
+            pair.token1._safeTransferFrom(msg.sender, address(this), token1amount);
+        } else {
+            pair.token0._safeTransferFrom(msg.sender, address(this), token0amount);
+
+            pair.token1._safeTransferFrom(msg.sender, address(this), token1amount);
+        }
 
         // strategy dictates output LP
-        lp = ISwap(pair.swapStrategy).addLiquidity(token0amount, token1amount);
+        lp = ISwap(pair.swapStrategy).addLiquidity(id, token0amount, token1amount);
         
         if (lp == 0) revert NoLiquidity();
+
+        pair.reserve0 += uint112(token0amount);
+
+        pair.reserve1 += uint112(token1amount);
 
         _mint(
             to,
@@ -164,7 +170,7 @@ contract Helios is ERC1155 {
         emit LiquidityAdded(to, id, token0amount, token1amount);
     }
 
-    function removeLiquidity(address to, uint256 id, uint256 lp) external payable lock returns (
+    function removeLiquidity(address to, uint256 id, uint256 lp) public payable nonReentrant virtual returns (
         uint256 amount0out, uint256 amount1out
     ) {
         if (id > totalSupply) revert NoPair();
@@ -178,7 +184,7 @@ contract Helios is ERC1155 {
         );
 
         // strategy dictates output amounts
-        (amount0out, amount1out) = ISwap(pair.swapStrategy).removeLiquidity(lp);
+        (amount0out, amount1out) = ISwap(pair.swapStrategy).removeLiquidity(id, lp);
         
         if (pair.token0 == address(0)) {
             to._safeTransferETH(amount0out);
@@ -188,6 +194,10 @@ contract Helios is ERC1155 {
 
         pair.token1._safeTransfer(to, amount1out);
 
+        pair.reserve0 -= uint112(amount0out);
+
+        pair.reserve1 -= uint112(amount1out);
+
         emit LiquidityRemoved(to, id, amount0out, amount1out);
     }
 
@@ -196,10 +206,12 @@ contract Helios is ERC1155 {
         uint256 id, 
         address tokenIn, 
         uint256 amountIn
-    ) external payable lock returns (uint256 amountOut) {
+    ) public payable nonReentrant virtual returns (uint256 amountOut) {
         if (id > totalSupply) revert NoPair();
 
         Pair storage pair = pairs[id];
+
+        if (tokenIn != pair.token0 && tokenIn != pair.token1) revert NotPairToken();
 
         if (tokenIn == address(0)) {
             amountIn = msg.value;
@@ -207,24 +219,26 @@ contract Helios is ERC1155 {
             tokenIn._safeTransferFrom(msg.sender, address(this), amountIn);
         }
 
-        amountOut = ISwap(pair.swapStrategy).swap(tokenIn, amountIn);
+        amountOut = ISwap(pair.swapStrategy).swap(id, tokenIn, amountIn);
+
+        if (tokenIn == pair.token1) {
+            if (pair.token0 == address(0)) {
+                to._safeTransferETH(amountOut);
+            } else {
+                pair.token0._safeTransfer(to, amountOut);
+            }
+
+            pair.reserve0 -= uint112(amountOut);
+
+            pair.reserve1 += uint112(amountIn);
+        } else {
+            pair.token1._safeTransfer(to, amountOut);
+
+            pair.reserve0 += uint112(amountIn);
+
+            pair.reserve1 -= uint112(amountOut);
+        }
 
         emit Swapped(to, id, tokenIn, amountIn, amountOut);
-    }
-
-    /*///////////////////////////////////////////////////////////////
-                            MGMT LOGIC
-    //////////////////////////////////////////////////////////////*/
-
-    function setFeeTo(address feeTo_) external {
-        if (msg.sender != feeToSetter) revert Forbidden();
-
-        feeTo = feeTo_;
-    }
-
-    function setFeeToSetter(address feeToSetter_) external {
-        if (msg.sender != feeToSetter) revert Forbidden();
-
-        feeToSetter = feeToSetter_;
     }
 }
