@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.4;
 
-/// @notice A generic interface for a contract which properly accepts ERC1155 tokens.
+/// @notice A generic interface for a contract which properly accepts ERC-1155 tokens
 /// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC1155.sol)
 interface ERC1155TokenReceiver {
     function onERC1155Received(
@@ -22,12 +22,12 @@ interface ERC1155TokenReceiver {
     ) external returns (bytes4);
 }
 
-/// @notice Modern and gas-optimized ERC-1155 implementation.
+/// @notice Minimalist and gas efficient standard ERC-1155 implementation with meta-tx support
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC1155.sol)
 abstract contract ERC1155 {
-    /*///////////////////////////////////////////////////////////////
-                            EVENTS
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// Events
+    /// -----------------------------------------------------------------------
 
     event TransferSingle(
         address indexed operator,
@@ -47,72 +47,55 @@ abstract contract ERC1155 {
 
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
-    /*///////////////////////////////////////////////////////////////
-                            ERRORS
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// Errors
+    /// -----------------------------------------------------------------------
 
     error ArrayParity();
-
     error InvalidOperator();
-
     error InvalidReceiver();
-
     error SigExpired();
-
     error InvalidSig();
-
     error InvalidSigner();
 
-    /*///////////////////////////////////////////////////////////////
-                            ERC-1155 STORAGE
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// ERC-1155 storage
+    /// -----------------------------------------------------------------------
 
     mapping(address => mapping(uint256 => uint256)) public balanceOf;
-
     mapping(address => mapping(address => bool)) public isApprovedForAll;
 
-    /*///////////////////////////////////////////////////////////////
-                            EIP-2612-LIKE STORAGE
-    //////////////////////////////////////////////////////////////*/
-    
+    /// -----------------------------------------------------------------------
+    /// EIP-2612-like storage
+    /// -----------------------------------------------------------------------
+
+    uint256 internal immutable INITIAL_CHAIN_ID;
+    bytes32 internal immutable INITIAL_DOMAIN_SEPARATOR;
     bytes32 internal constant PERMIT_TYPEHASH =
         keccak256('Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)');
-    
-    uint256 internal immutable INITIAL_CHAIN_ID;
-
-    bytes32 internal immutable INITIAL_DOMAIN_SEPARATOR;
 
     mapping(address => uint256) public nonces;
 
-    /*///////////////////////////////////////////////////////////////
-                            METADATA
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// Metadata
+    /// -----------------------------------------------------------------------
 
     string public baseURI = "PLACEHOLDER";
-
     string public constant name = "Helios";
-
     string public constant symbol = "HELI";
 
-    /*///////////////////////////////////////////////////////////////
-                            SUPPLY STORAGE
-    //////////////////////////////////////////////////////////////*/
-
-    mapping(uint256 => uint256) totalSupplyForId;
-
-    /*///////////////////////////////////////////////////////////////
-                            CONSTRUCTOR
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// Constructor
+    /// -----------------------------------------------------------------------
     
     constructor() {
         INITIAL_CHAIN_ID = block.chainid;
-
         INITIAL_DOMAIN_SEPARATOR = _computeDomainSeparator();
     }
 
-    /*///////////////////////////////////////////////////////////////
-                            ERC-1155 LOGIC
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// ERC-1155 logic
+    /// -----------------------------------------------------------------------
 
     function balanceOfBatch(address[] memory owners, uint256[] memory ids)
         public
@@ -155,7 +138,6 @@ abstract contract ERC1155 {
         if (msg.sender != from || !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
         balanceOf[from][id] -= amount;
-
         balanceOf[to][id] += amount;
 
         emit TransferSingle(msg.sender, from, to, id, amount);
@@ -176,7 +158,6 @@ abstract contract ERC1155 {
         uint256 idsLength = ids.length; // saves MLOADs
 
         if (idsLength != amounts.length) revert ArrayParity();
-
         if (msg.sender != from || !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
         for (uint256 i = 0; i < idsLength; ) {
@@ -201,10 +182,42 @@ abstract contract ERC1155 {
         ) revert InvalidReceiver();
     }
 
-    /*///////////////////////////////////////////////////////////////
-                            EIP-2612-LIKE LOGIC
-    //////////////////////////////////////////////////////////////*/
-    
+    /// -----------------------------------------------------------------------
+    /// EIP-2612-like logic
+    /// -----------------------------------------------------------------------
+
+    function permit(
+        address owner,
+        address operator,
+        bool approved,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual {
+        if (block.timestamp > deadline) revert SigExpired();
+   
+        // cannot realistically overflow on human timescales
+        unchecked {
+            bytes32 digest = keccak256(
+                abi.encodePacked(
+                    '\x19\x01',
+                    DOMAIN_SEPARATOR(),
+                    keccak256(abi.encode(PERMIT_TYPEHASH, owner, operator, approved, nonces[owner]++, deadline))
+                )
+            );
+
+            address recoveredAddress = ecrecover(digest, v, r, s);
+
+            if (recoveredAddress == address(0)) revert InvalidSig();
+            if (recoveredAddress != owner) revert InvalidSigner();
+        }
+
+        isApprovedForAll[owner][operator] = approved;
+
+        emit ApprovalForAll(owner, operator, approved);
+    }
+
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
         return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
     }
@@ -222,43 +235,9 @@ abstract contract ERC1155 {
             );
     }
 
-    function permit(
-        address owner,
-        address operator,
-        bool approved,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual {
-        if (block.timestamp > deadline) revert SigExpired();
-   
-        // this is reasonably safe from overflow because incrementing `nonces` beyond
-        // 'type(uint256).max' is exceedingly unlikely compared to optimization benefits
-        unchecked {
-            bytes32 digest = keccak256(
-                abi.encodePacked(
-                    '\x19\x01',
-                    DOMAIN_SEPARATOR(),
-                    keccak256(abi.encode(PERMIT_TYPEHASH, owner, operator, approved, nonces[owner]++, deadline))
-                )
-            );
-
-            address recoveredAddress = ecrecover(digest, v, r, s);
-
-            if (recoveredAddress == address(0)) revert InvalidSig();
-
-            if (recoveredAddress != owner) revert InvalidSigner();
-        }
-
-        isApprovedForAll[owner][operator] = approved;
-
-        emit ApprovalForAll(owner, operator, approved);
-    }
-
-    /*///////////////////////////////////////////////////////////////
-                              ERC-165 LOGIC
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// ERC-165 logic
+    /// -----------------------------------------------------------------------
 
     function supportsInterface(bytes4 interfaceId) public pure virtual returns (bool) {
         return
@@ -267,9 +246,9 @@ abstract contract ERC1155 {
             interfaceId == 0x0e89341c; // ERC-165 Interface ID for ERC-1155 MetadataURI
     }
 
-    /*///////////////////////////////////////////////////////////////
-                            MINT/BURN LOGIC
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// Mint/Burn logic
+    /// -----------------------------------------------------------------------
 
     function _mint(
         address to,
@@ -278,8 +257,6 @@ abstract contract ERC1155 {
         bytes memory data
     ) internal {
         balanceOf[to][id] += amount;
-
-        totalSupplyForId[id] += amount;
 
         emit TransferSingle(msg.sender, address(0), to, id, amount);
 
@@ -297,7 +274,7 @@ abstract contract ERC1155 {
     ) internal {
         uint256 idsLength = ids.length; // saves MLOADs
 
-        require(idsLength == amounts.length, "LENGTH_MISMATCH");
+        if (idsLength != amounts.length) revert ArrayParity();
 
         for (uint256 i = 0; i < idsLength; ) {
             balanceOf[to][ids[i]] += amounts[i];
@@ -307,8 +284,6 @@ abstract contract ERC1155 {
             unchecked {
                 i++;
             }
-
-            totalSupplyForId[ids[i]] += amounts[i];
         }
 
         emit TransferBatch(msg.sender, address(0), to, ids, amounts);
@@ -326,8 +301,6 @@ abstract contract ERC1155 {
     ) internal {
         balanceOf[from][id] -= amount;
 
-        totalSupplyForId[id] -= amount;
-
         emit TransferSingle(msg.sender, from, address(0), id, amount);
     }
 
@@ -336,20 +309,18 @@ abstract contract ERC1155 {
         uint256[] memory ids,
         uint256[] memory amounts
     ) internal {
-        uint256 idsLength = ids.length; // Saves MLOADs.
+        uint256 idsLength = ids.length; // saves MLOADs
 
-        require(idsLength == amounts.length, "LENGTH_MISMATCH");
+        if (idsLength != amounts.length) revert ArrayParity();
 
         for (uint256 i = 0; i < idsLength; ) {
             balanceOf[from][ids[i]] -= amounts[i];
 
-            // An array can't have a total length
-            // larger than the max uint256 value.
+            // an array can't have a total length
+            // larger than the max uint256 value
             unchecked {
                 i++;
             }
-
-            totalSupplyForId[ids[i]] -= amounts[i];
         }
 
         emit TransferBatch(msg.sender, from, address(0), ids, amounts);
