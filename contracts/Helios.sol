@@ -4,11 +4,10 @@ pragma solidity >=0.8.4;
 
 import './ERC1155.sol';
 import './libraries/SafeTransferLib.sol';
-import './ISwap.sol';
+import './IPairSwap.sol';
 import './utils/Multicall.sol';
-import './utils/ReentrancyGuard.sol';
 
-/// @notice Extensible multi-token exchange
+/// @notice Extensible 1155-based exchange for liquidity pairs
 contract Helios is ERC1155, Multicall, ReentrancyGuard {
     /// -----------------------------------------------------------------------
     /// Library usage
