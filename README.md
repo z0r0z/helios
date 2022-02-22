@@ -5,7 +5,7 @@ LPs are tracked under [multi-token standard](https://eips.ethereum.org/EIPS/eip-
 
 Swapping is routed from this same contract. Easy peasy.
 
-Math is handled by external helper contracts called `swapStrategy`.
+Math is handled by external helper contracts called `swapper`.
 
 Currently, pairs are supported. Can use raw ETH too.
 

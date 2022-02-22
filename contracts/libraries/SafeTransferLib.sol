@@ -2,24 +2,22 @@
 
 pragma solidity >=0.8.4;
 
-/// @notice Safe ETH and ERC-20 transfer library that gracefully handles missing return values.
+/// @notice Safe ETH and ERC-20 transfer library that gracefully handles missing return values
 /// @author Modified from SolMate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/SafeTransferLib.sol)
 /// License-Identifier: AGPL-3.0-only
-/// @dev Use with caution! Some functions in this library knowingly create dirty bits at the destination of the free memory pointer.
+/// @dev Use with caution! Some functions in this library knowingly create dirty bits at the destination of the free memory pointer
 library SafeTransferLib {
-    /*///////////////////////////////////////////////////////////////
-                            ERRORS
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// Errors
+    /// -----------------------------------------------------------------------
 
     error ETHtransferFailed();
-
     error TransferFailed();
-
     error TransferFromFailed();
 
-    /*///////////////////////////////////////////////////////////////
-                            ETH OPERATIONS
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// ETH logic
+    /// -----------------------------------------------------------------------
 
     function _safeTransferETH(address to, uint256 amount) internal {
         bool callStatus;
@@ -32,9 +30,9 @@ library SafeTransferLib {
         if (!callStatus) revert ETHtransferFailed();
     }
 
-    /*///////////////////////////////////////////////////////////////
-                            ERC20 OPERATIONS
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// ERC-20 logic
+    /// -----------------------------------------------------------------------
 
     function _safeTransfer(
         address token,
@@ -49,9 +47,7 @@ library SafeTransferLib {
 
             // write the abi-encoded calldata to memory piece by piece:
             mstore(freeMemoryPointer, 0xa9059cbb00000000000000000000000000000000000000000000000000000000) // begin with the function selector
-            
             mstore(add(freeMemoryPointer, 4), and(to, 0xffffffffffffffffffffffffffffffffffffffff)) // mask and append the "to" argument
-            
             mstore(add(freeMemoryPointer, 36), amount) // finally append the "amount" argument - no mask as it's a full 32 byte value
 
             // call the token and store if it succeeded or not
@@ -76,11 +72,8 @@ library SafeTransferLib {
 
             // write the abi-encoded calldata to memory piece by piece:
             mstore(freeMemoryPointer, 0x23b872dd00000000000000000000000000000000000000000000000000000000) // begin with the function selector
-            
             mstore(add(freeMemoryPointer, 4), and(from, 0xffffffffffffffffffffffffffffffffffffffff)) // mask and append the "from" argument
-            
             mstore(add(freeMemoryPointer, 36), and(to, 0xffffffffffffffffffffffffffffffffffffffff)) // mask and append the "to" argument
-            
             mstore(add(freeMemoryPointer, 68), amount) // finally append the "amount" argument - no mask as it's a full 32 byte value
 
             // call the token and store if it succeeded or not
@@ -91,9 +84,9 @@ library SafeTransferLib {
         if (!_didLastOptionalReturnCallSucceed(callStatus)) revert TransferFromFailed();
     }
 
-    /*///////////////////////////////////////////////////////////////
-                            INTERNAL HELPER LOGIC
-    //////////////////////////////////////////////////////////////*/
+    /// -----------------------------------------------------------------------
+    /// Internal helper logic
+    /// -----------------------------------------------------------------------
 
     function _didLastOptionalReturnCallSucceed(bool callStatus) internal pure returns (bool success) {
         assembly {
@@ -118,10 +111,12 @@ library SafeTransferLib {
                 // set success to whether it returned true
                 success := iszero(iszero(mload(0)))
             }
+
             case 0 {
                 // there was no return data
                 success := 1
             }
+
             default {
                 // it returned some malformed input
                 success := 0
