@@ -28,7 +28,6 @@ contract Helios is ERC1155, Multicall, ReentrancyGuard {
     /// Errors
     /// -----------------------------------------------------------------------
 
-    error Locked();
     error IdenticalTokens();
     error NoSwapper();
     error PairExists();
