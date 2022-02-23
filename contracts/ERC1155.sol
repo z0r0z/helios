@@ -70,8 +70,6 @@ abstract contract ERC1155 {
 
     uint256 internal immutable INITIAL_CHAIN_ID;
     bytes32 internal immutable INITIAL_DOMAIN_SEPARATOR;
-    bytes32 internal constant PERMIT_TYPEHASH =
-        keccak256('Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)');
 
     mapping(address => uint256) public nonces;
 
