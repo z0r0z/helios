@@ -105,9 +105,9 @@ abstract contract ERC1155 {
     {
         uint256 ownersLength = owners.length; // saves MLOADs
 
-        if (owners.length != ids.length) revert ArrayParity();
+        if (ownersLength != ids.length) revert ArrayParity();
 
-        balances = new uint256[](owners.length);
+        balances = new uint256[](ownersLength);
 
         // unchecked because the only math done is incrementing
         // the array index counter which cannot possibly overflow
@@ -135,14 +135,14 @@ abstract contract ERC1155 {
         uint256 amount,
         bytes memory data
     ) public virtual {
-        if (msg.sender != from || !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
+        if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
         balanceOf[from][id] -= amount;
         balanceOf[to][id] += amount;
 
         emit TransferSingle(msg.sender, from, to, id, amount);
 
-        if (to.code.length != 0 &&
+        if (to.code.length != 0 ? to == address(0) :
             ERC1155TokenReceiver(to).onERC1155Received(msg.sender, from, id, amount, data) !=
                 ERC1155TokenReceiver.onERC1155Received.selector
         ) revert InvalidReceiver();
@@ -158,9 +158,9 @@ abstract contract ERC1155 {
         uint256 idsLength = ids.length; // saves MLOADs
 
         if (idsLength != amounts.length) revert ArrayParity();
-        if (msg.sender != from || !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
+        if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
-        for (uint256 i = 0; i < idsLength; ) {
+        for (uint256 i = 0; i < idsLength;) {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
@@ -176,7 +176,7 @@ abstract contract ERC1155 {
 
         emit TransferBatch(msg.sender, from, to, ids, amounts);
 
-        if (to.code.length != 0 &&
+        if (to.code.length != 0 ? to == address(0) :
             ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, from, ids, amounts, data) !=
                 ERC1155TokenReceiver.onERC1155BatchReceived.selector
         ) revert InvalidReceiver();
@@ -203,14 +203,15 @@ abstract contract ERC1155 {
                 abi.encodePacked(
                     '\x19\x01',
                     DOMAIN_SEPARATOR(),
-                    keccak256(abi.encode(PERMIT_TYPEHASH, owner, operator, approved, nonces[owner]++, deadline))
+                    keccak256(
+                        abi.encode(keccak256('Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)'), 
+                        owner, operator, approved, nonces[owner]++, deadline))
                 )
             );
 
-            address recoveredAddress = ecrecover(digest, v, r, s);
+            address signer = ecrecover(digest, v, r, s);
 
-            if (recoveredAddress == address(0)) revert InvalidSig();
-            if (recoveredAddress != owner) revert InvalidSigner();
+            if (signer == address(0) || signer != owner) revert InvalidSig();
         }
 
         isApprovedForAll[owner][operator] = approved;
@@ -260,7 +261,7 @@ abstract contract ERC1155 {
 
         emit TransferSingle(msg.sender, address(0), to, id, amount);
 
-        if (to.code.length != 0 &&
+        if (to.code.length != 0 ? to == address(0) :
             ERC1155TokenReceiver(to).onERC1155Received(msg.sender, address(0), id, amount, data) !=
                 ERC1155TokenReceiver.onERC1155Received.selector
         ) revert InvalidReceiver();
@@ -276,7 +277,7 @@ abstract contract ERC1155 {
 
         if (idsLength != amounts.length) revert ArrayParity();
 
-        for (uint256 i = 0; i < idsLength; ) {
+        for (uint256 i = 0; i < idsLength;) {
             balanceOf[to][ids[i]] += amounts[i];
 
             // an array can't have a total length
@@ -288,7 +289,7 @@ abstract contract ERC1155 {
 
         emit TransferBatch(msg.sender, address(0), to, ids, amounts);
 
-        if (to.code.length != 0 &&
+        if (to.code.length != 0 ? to == address(0) :
             ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, address(0), ids, amounts, data) !=
                 ERC1155TokenReceiver.onERC1155Received.selector
         ) revert InvalidReceiver();
@@ -313,7 +314,7 @@ abstract contract ERC1155 {
 
         if (idsLength != amounts.length) revert ArrayParity();
 
-        for (uint256 i = 0; i < idsLength; ) {
+        for (uint256 i = 0; i < idsLength;) {
             balanceOf[from][ids[i]] -= amounts[i];
 
             // an array can't have a total length
