@@ -56,7 +56,6 @@ abstract contract ERC1155 {
     error InvalidReceiver();
     error SigExpired();
     error InvalidSig();
-    error InvalidSigner();
 
     /// -----------------------------------------------------------------------
     /// ERC-1155 storage
