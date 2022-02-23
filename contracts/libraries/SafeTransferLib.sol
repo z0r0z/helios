@@ -3,7 +3,7 @@
 pragma solidity >=0.8.4;
 
 /// @notice Safe ETH and ERC-20 transfer library that gracefully handles missing return values
-/// @author Modified from SolMate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/SafeTransferLib.sol)
+/// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/SafeTransferLib.sol)
 /// License-Identifier: AGPL-3.0-only
 /// @dev Use with caution! Some functions in this library knowingly create dirty bits at the destination of the free memory pointer
 library SafeTransferLib {
