@@ -46,12 +46,12 @@ contract Helios is ERC1155, Multicall {
     /// @dev maps Helios LP to settings
     mapping(uint256 => Pair) public pairs;
     /// @dev internal mapping to check Helios LP settings
-    mapping(address => mapping(address => mapping(address => mapping(uint256 => uint256)))) private pairSettings;
+    mapping(address => mapping(address => mapping(IPairSwap => mapping(uint256 => uint256)))) private pairSettings;
 
     struct Pair {
         address token0; // first pair token
         address token1; // second pair token
-        address swapper; // pair output target
+        IPairSwap swapper; // pair output target
         uint112 reserve0; // first pair token reserve
         uint112 reserve1; // second pair token reserve
         uint8 fee; // fee back to pair liquidity providers
@@ -78,12 +78,12 @@ contract Helios is ERC1155, Multicall {
         address tokenB,
         uint112 tokenAamount,
         uint112 tokenBamount,
-        address swapper,
+        IPairSwap swapper,
         uint8 fee,
         bytes calldata data
     ) public payable virtual returns (uint256 id, uint256 liq) {
         if (tokenA == tokenB) revert IdenticalTokens();
-        if (swapper == address(0) || swapper.code.length == 0) revert NoSwapper();
+        if (address(swapper) == address(0) || address(swapper).code.length == 0) revert NoSwapper();
 
         // sort tokens and amounts
         (address token0, address token1) = (tokenA, tokenB);
@@ -120,7 +120,7 @@ contract Helios is ERC1155, Multicall {
         });
 
         // swapper logic returns output liquidity
-        liq = IPairSwap(swapper).addLiquidity(id, token0amount, token1amount);
+        liq = swapper.addLiquidity(id, token0amount, token1amount);
 
         _mint(
             to,
@@ -162,7 +162,7 @@ contract Helios is ERC1155, Multicall {
         }
 
         // swapper dictates output LP
-        liq = IPairSwap(pair.swapper).addLiquidity(id, token0amount, token1amount);
+        liq = pair.swapper.addLiquidity(id, token0amount, token1amount);
         
         if (liq == 0) revert NoLiquidity();
 
@@ -203,7 +203,7 @@ contract Helios is ERC1155, Multicall {
         );
 
         // swapper dictates output amounts
-        (amount0out, amount1out) = IPairSwap(pair.swapper).removeLiquidity(id, liq);
+        (amount0out, amount1out) = pair.swapper.removeLiquidity(id, liq);
         
         if (pair.token0 == address(0)) {
             to._safeTransferETH(amount0out);
@@ -249,7 +249,7 @@ contract Helios is ERC1155, Multicall {
             tokenIn._safeTransferFrom(msg.sender, address(this), amountIn);
         }
 
-        amountOut = IPairSwap(pair.swapper).swap(id, tokenIn, amountIn);
+        amountOut = pair.swapper.swap(id, tokenIn, amountIn);
 
         if (tokenIn == pair.token1) {
             if (pair.token0 == address(0)) {
