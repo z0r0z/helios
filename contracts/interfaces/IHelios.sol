@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.4;
 
-/// @notice Interface for Helios swap
+/// @notice Swapper interface for Helios
 interface IHelios {
     struct Pair {
         address token0; 
