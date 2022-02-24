@@ -7,7 +7,7 @@ import '../interfaces/IHelios.sol';
 
 /// @notice XYK swapper for Helios
 /// @author Modified from UniswapV2Pair (https://github.com/Uniswap/v2-core/blob/master/contracts/UniswapV2Pair.sol)
-contract XYKswapper {'
+contract XYKswapper {
     /// -----------------------------------------------------------------------
     /// Errors
     /// -----------------------------------------------------------------------
