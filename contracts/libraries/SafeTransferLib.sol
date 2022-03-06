@@ -16,7 +16,7 @@ library SafeTransferLib {
     error TransferFromFailed();
 
     /// -----------------------------------------------------------------------
-    /// ETH logic
+    /// ETH Logic
     /// -----------------------------------------------------------------------
 
     function _safeTransferETH(address to, uint256 amount) internal {
@@ -31,7 +31,7 @@ library SafeTransferLib {
     }
 
     /// -----------------------------------------------------------------------
-    /// ERC-20 logic
+    /// ERC-20 Logic
     /// -----------------------------------------------------------------------
 
     function _safeTransfer(
@@ -85,40 +85,34 @@ library SafeTransferLib {
     }
 
     /// -----------------------------------------------------------------------
-    /// Internal helper logic
+    /// Internal Helper Logic
     /// -----------------------------------------------------------------------
 
-    function _didLastOptionalReturnCallSucceed(bool callStatus) internal pure returns (bool success) {
+    function _didLastOptionalReturnCallSucceed(bool callStatus) private pure returns (bool success) {
         assembly {
-            // get how many bytes the call returned
-            let returnDataSize := returndatasize()
-
             // if the call reverted:
             if iszero(callStatus) {
                 // copy the revert message into memory
-                returndatacopy(0, 0, returnDataSize)
+                returndatacopy(0, 0, returndatasize())
 
-                // revert with the same message
-                revert(0, returnDataSize)
+                // revert with the same message.
+                revert(0, returndatasize())
             }
 
-            switch returnDataSize
-            
+            switch returndatasize()
             case 32 {
                 // copy the return data into memory
-                returndatacopy(0, 0, returnDataSize)
+                returndatacopy(0, 0, returndatasize())
 
                 // set success to whether it returned true
                 success := iszero(iszero(mload(0)))
             }
-
             case 0 {
                 // there was no return data
                 success := 1
             }
-
             default {
-                // it returned some malformed input
+                // it returned some malformed output
                 success := 0
             }
         }
