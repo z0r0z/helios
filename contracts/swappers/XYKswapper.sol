@@ -3,11 +3,13 @@
 pragma solidity >=0.8.4;
 
 import {SqrtMath} from '../libraries/math/SqrtMath.sol';
+import {ReentrancyGuard} from '../utils/ReentrancyGuard.sol';
 import {IHelios} from '../interfaces/IHelios.sol';
 
 /// @notice XYK swapper for Helios
 /// @author Modified from UniswapV2Pair (https://github.com/Uniswap/v2-core/blob/master/contracts/UniswapV2Pair.sol)
-contract XYKswapper {
+/// License-Identifier: GPL-3.0
+contract XYKswapper is ReentrancyGuard {
     /// -----------------------------------------------------------------------
     /// Errors
     /// -----------------------------------------------------------------------
@@ -35,7 +37,7 @@ contract XYKswapper {
     /// LP Logic
     /// -----------------------------------------------------------------------
 
-    function addLiquidity(uint256 id, uint256 token0amount, uint256 token1amount) public virtual returns (uint256 liq) {
+    function addLiquidity(uint256 id, uint256 token0amount, uint256 token1amount) public nonReentrant returns (uint256 liq) {
         IHelios.Pair memory pair = IHelios(msg.sender).pairs(id);
 
         uint256 reserve0 = pair.reserve0;
@@ -52,7 +54,7 @@ contract XYKswapper {
         if (liq == 0) revert InsuffLiquidityMint();
     }
 
-    function removeLiquidity(uint256 id, uint256 lp) public virtual returns (uint256 amount0out, uint256 amount1out) {
+    function removeLiquidity(uint256 id, uint256 lp) public nonReentrant returns (uint256 amount0out, uint256 amount1out) {
         IHelios.Pair memory pair = IHelios(msg.sender).pairs(id);
 
         uint256 reserve0 = pair.reserve0;
@@ -70,7 +72,7 @@ contract XYKswapper {
     /// Swap Logic
     /// -----------------------------------------------------------------------
 
-    function swap(uint256 id, address tokenIn, uint256 amountIn) public virtual returns (uint256 amountOut) {
+    function swap(uint256 id, address tokenIn, uint256 amountIn) public nonReentrant returns (uint256 amountOut) {
         IHelios.Pair memory pair = IHelios(msg.sender).pairs(id);
 
         uint256 reserve0 = pair.reserve0;
