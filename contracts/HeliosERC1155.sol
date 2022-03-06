@@ -207,7 +207,6 @@ abstract contract HeliosERC1155 {
         bytes32 s
     ) public {
         if (block.timestamp > deadline) revert SigExpired();
-   
         // unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow
         unchecked {
