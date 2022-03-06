@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 pragma solidity >=0.8.4;
 
-import '../libraries/math/SqrtMath.sol';
-import '../interfaces/IHelios.sol';
+import {SqrtMath} from '../libraries/math/SqrtMath.sol';
+import {IHelios} from '../interfaces/IHelios.sol';
 
 /// @notice XYK swapper for Helios
 /// @author Modified from UniswapV2Pair (https://github.com/Uniswap/v2-core/blob/master/contracts/UniswapV2Pair.sol)
