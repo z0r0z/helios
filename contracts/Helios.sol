@@ -19,7 +19,7 @@ contract Helios is HeliosERC1155, Multicall {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event PairCreated(address indexed to, address token0, address token1, uint256 indexed id);
+    event PairCreated(address indexed to, uint256 indexed id, address token0, address token1);
     event LiquidityAdded(address indexed to, uint256 indexed id, uint256 token0amount, uint256 token1amount);
     event LiquidityRemoved(address indexed from, uint256 indexed id, uint256 amount0out, uint256 amount1out);
     event Swapped(address indexed to, uint256 indexed id, address tokenIn, uint256 amountIn, uint256 amountOut);
@@ -42,7 +42,7 @@ contract Helios is HeliosERC1155, Multicall {
     /// @dev tracks new LP ids
     uint256 public totalSupply;
     /// @dev tracks LP amount per id
-    mapping(uint256 => uint256) totalSupplyForId;
+    mapping(uint256 => uint256) public totalSupplyForId;
     /// @dev maps Helios LP to settings
     mapping(uint256 => Pair) public pairs;
     /// @dev internal mapping to check Helios LP settings
@@ -76,22 +76,24 @@ contract Helios is HeliosERC1155, Multicall {
         address to,
         address tokenA,
         address tokenB,
-        uint112 tokenAamount,
-        uint112 tokenBamount,
+        uint256 tokenAamount,
+        uint256 tokenBamount,
         IPairSwap swapper,
         uint8 fee,
         bytes calldata data
-    ) public payable virtual returns (uint256 id, uint256 liq) {
+    ) public payable returns (uint256 id, uint256 liq) {
         if (tokenA == tokenB) revert IdenticalTokens();
         if (address(swapper) == address(0) || address(swapper).code.length == 0) revert NoSwapper();
 
         // sort tokens and amounts
-        (address token0, address token1) = (tokenA, tokenB);
-        (uint112 token0amount, uint112 token1amount) = (tokenAamount, tokenBamount);
-        
+        address token0; 
+        address token1;
+        uint112 token0amount;
+        uint112 token1amount;
+
         if (tokenB > tokenA) {
             (token0, token1) = (tokenB, tokenA);
-            (token0amount, token1amount) = (tokenBamount, tokenAamount);
+            (token0amount, token1amount) = (uint112(tokenBamount), uint112(tokenAamount));
         }
 
         if (pairSettings[token0][token1][swapper][fee] != 0) revert PairExists();
@@ -119,7 +121,7 @@ contract Helios is HeliosERC1155, Multicall {
             fee: fee
         });
 
-        // swapper logic returns output liquidity
+        // swapper dictates output LP
         liq = swapper.addLiquidity(id, token0amount, token1amount);
 
         _mint(
@@ -131,7 +133,8 @@ contract Helios is HeliosERC1155, Multicall {
 
         totalSupplyForId[id] = liq;
 
-        emit PairCreated(to, token0, token1, id);
+        emit PairCreated(to, id, token0, token1);
+        emit LiquidityAdded(to, id, token0amount, token1amount);
     }
 
     /// @notice Add liquidity to Helios LP
@@ -147,7 +150,7 @@ contract Helios is HeliosERC1155, Multicall {
         uint256 token0amount,
         uint256 token1amount,
         bytes calldata data
-    ) public payable virtual returns (uint256 liq) {
+    ) public payable returns (uint256 liq) {
         if (id > totalSupply) revert NoPair();
 
         Pair storage pair = pairs[id];
@@ -191,7 +194,7 @@ contract Helios is HeliosERC1155, Multicall {
         address to, 
         uint256 id, 
         uint256 liq
-    ) public payable virtual returns (uint256 amount0out, uint256 amount1out) {
+    ) public payable returns (uint256 amount0out, uint256 amount1out) {
         if (id > totalSupply) revert NoPair();
 
         Pair storage pair = pairs[id];
@@ -230,13 +233,13 @@ contract Helios is HeliosERC1155, Multicall {
     /// @param id The Helios LP id in 1155 tracking
     /// @param tokenIn The asset to swap from
     /// @param amountIn The amount of asset to swap
-    /// @param amountOut The Helios output from swap
+    /// @return amountOut The Helios output from swap
     function swap(
         address to, 
         uint256 id, 
         address tokenIn, 
         uint256 amountIn
-    ) public payable virtual returns (uint256 amountOut) {
+    ) public payable returns (uint256 amountOut) {
         if (id > totalSupply) revert NoPair();
 
         Pair storage pair = pairs[id];
@@ -249,6 +252,7 @@ contract Helios is HeliosERC1155, Multicall {
             tokenIn._safeTransferFrom(msg.sender, address(this), amountIn);
         }
 
+        // swapper dictates output amount
         amountOut = pair.swapper.swap(id, tokenIn, amountIn);
 
         if (tokenIn == pair.token1) {
