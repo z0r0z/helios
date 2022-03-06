@@ -4,6 +4,7 @@ pragma solidity >=0.8.4;
 
 /// @notice A generic interface for a contract which properly accepts ERC-1155 tokens
 /// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC1155.sol)
+/// License-Identifier: AGPL-3.0-only
 interface ERC1155TokenReceiver {
     function onERC1155Received(
         address operator,
@@ -24,7 +25,8 @@ interface ERC1155TokenReceiver {
 
 /// @notice Minimalist and gas efficient standard ERC-1155 implementation with meta-tx support
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC1155.sol)
-abstract contract ERC1155 {
+/// License-Identifier: AGPL-3.0-only
+abstract contract HeliosERC1155 {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
@@ -58,14 +60,14 @@ abstract contract ERC1155 {
     error InvalidSig();
 
     /// -----------------------------------------------------------------------
-    /// ERC-1155 storage
+    /// ERC-1155 Storage
     /// -----------------------------------------------------------------------
 
     mapping(address => mapping(uint256 => uint256)) public balanceOf;
     mapping(address => mapping(address => bool)) public isApprovedForAll;
 
     /// -----------------------------------------------------------------------
-    /// EIP-2612-like storage
+    /// EIP-2612-like Storage
     /// -----------------------------------------------------------------------
 
     uint256 internal immutable INITIAL_CHAIN_ID;
@@ -91,13 +93,23 @@ abstract contract ERC1155 {
     }
 
     /// -----------------------------------------------------------------------
-    /// ERC-1155 logic
+    /// ERC-165 Logic
     /// -----------------------------------------------------------------------
 
-    function balanceOfBatch(address[] memory owners, uint256[] memory ids)
+    function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
+        return
+            interfaceId == 0x01ffc9a7 || // ERC-165 Interface ID for ERC-165
+            interfaceId == 0xd9b67a26 || // ERC-165 Interface ID for ERC-1155
+            interfaceId == 0x0e89341c; // ERC-165 Interface ID for ERC-1155 MetadataURI
+    }
+
+    /// -----------------------------------------------------------------------
+    /// ERC-1155 Logic
+    /// -----------------------------------------------------------------------
+
+    function balanceOfBatch(address[] calldata owners, uint256[] calldata ids)
         public
         view
-        virtual
         returns (uint256[] memory balances)
     {
         uint256 ownersLength = owners.length; // saves MLOADs
@@ -108,18 +120,20 @@ abstract contract ERC1155 {
 
         // unchecked because the only math done is incrementing
         // the array index counter which cannot possibly overflow
-        unchecked {
-            for (uint256 i = 0; i < ownersLength; i++) {
-                balances[i] = balanceOf[owners[i]][ids[i]];
+        for (uint256 i; i < ownersLength;) {
+            balances[i] = balanceOf[owners[i]][ids[i]];
+
+            unchecked {
+                ++i;
             }
         }
     }
 
-    function uri(uint256) public view virtual returns (string memory) {
+    function uri(uint256) public view returns (string memory) {
         return baseURI;
     }
 
-    function setApprovalForAll(address operator, bool approved) public virtual {
+    function setApprovalForAll(address operator, bool approved) public {
         isApprovedForAll[msg.sender][operator] = approved;
 
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -130,8 +144,8 @@ abstract contract ERC1155 {
         address to,
         uint256 id,
         uint256 amount,
-        bytes memory data
-    ) public virtual {
+        bytes calldata data
+    ) public {
         if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
         balanceOf[from][id] -= amount;
@@ -148,18 +162,20 @@ abstract contract ERC1155 {
     function safeBatchTransferFrom(
         address from,
         address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) public virtual {
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
+        bytes calldata data
+    ) public {
         uint256 idsLength = ids.length; // saves MLOADs
 
         if (idsLength != amounts.length) revert ArrayParity();
         if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
-        for (uint256 i = 0; i < idsLength;) {
-            uint256 id = ids[i];
-            uint256 amount = amounts[i];
+        uint256 id;
+        uint256 amount;
+        for (uint256 i; i < idsLength;) {
+            id = ids[i];
+            amount = amounts[i];
 
             balanceOf[from][id] -= amount;
             balanceOf[to][id] += amount;
@@ -167,7 +183,7 @@ abstract contract ERC1155 {
             // an array can't have a total length
             // larger than the max uint256 value
             unchecked {
-                i++;
+                ++i;
             }
         }
 
@@ -180,7 +196,7 @@ abstract contract ERC1155 {
     }
 
     /// -----------------------------------------------------------------------
-    /// EIP-2612-like logic
+    /// EIP-2612-like Logic
     /// -----------------------------------------------------------------------
 
     function permit(
@@ -191,24 +207,28 @@ abstract contract ERC1155 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual {
+    ) public {
         if (block.timestamp > deadline) revert SigExpired();
    
         // cannot realistically overflow on human timescales
         unchecked {
-            bytes32 digest = keccak256(
-                abi.encodePacked(
-                    '\x19\x01',
-                    DOMAIN_SEPARATOR(),
-                    keccak256(
-                        abi.encode(keccak256('Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)'), 
-                        owner, operator, approved, nonces[owner]++, deadline))
-                )
+            address signer = ecrecover(
+                keccak256(
+                    abi.encodePacked(
+                        '\x19\x01',
+                        DOMAIN_SEPARATOR(),
+                        keccak256(
+                            abi.encode(keccak256('Permit(address owner,address operator,bool approved,uint256 nonce,uint256 deadline)'), 
+                            owner, operator, approved, ++nonces[owner], deadline))
+                    )
+                ), 
+                v, r, s
             );
 
-            address signer = ecrecover(digest, v, r, s);
-
-            if (signer == address(0) || signer != owner) revert InvalidSig();
+            if (signer != owner 
+                && !isApprovedForAll[owner][signer]
+                || signer == address(0)
+            ) revert InvalidSig(); 
         }
 
         isApprovedForAll[owner][operator] = approved;
@@ -216,11 +236,11 @@ abstract contract ERC1155 {
         emit ApprovalForAll(owner, operator, approved);
     }
 
-    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
+    function DOMAIN_SEPARATOR() public view returns (bytes32) {
         return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
     }
 
-    function _computeDomainSeparator() internal view virtual returns (bytes32) {
+    function _computeDomainSeparator() internal view returns (bytes32) {
         return 
             keccak256(
                 abi.encode(
@@ -234,25 +254,14 @@ abstract contract ERC1155 {
     }
 
     /// -----------------------------------------------------------------------
-    /// ERC-165 logic
-    /// -----------------------------------------------------------------------
-
-    function supportsInterface(bytes4 interfaceId) public pure virtual returns (bool) {
-        return
-            interfaceId == 0x01ffc9a7 || // ERC-165 Interface ID for ERC-165
-            interfaceId == 0xd9b67a26 || // ERC-165 Interface ID for ERC-1155
-            interfaceId == 0x0e89341c; // ERC-165 Interface ID for ERC-1155 MetadataURI
-    }
-
-    /// -----------------------------------------------------------------------
-    /// Mint/Burn logic
+    /// Mint/Burn Logic
     /// -----------------------------------------------------------------------
 
     function _mint(
         address to,
         uint256 id,
         uint256 amount,
-        bytes memory data
+        bytes calldata data
     ) internal {
         balanceOf[to][id] += amount;
 
@@ -266,21 +275,21 @@ abstract contract ERC1155 {
 
     function _batchMint(
         address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
+        bytes calldata data
     ) internal {
         uint256 idsLength = ids.length; // saves MLOADs
 
         if (idsLength != amounts.length) revert ArrayParity();
 
-        for (uint256 i = 0; i < idsLength;) {
+        for (uint256 i; i < idsLength;) {
             balanceOf[to][ids[i]] += amounts[i];
 
             // an array can't have a total length
             // larger than the max uint256 value
             unchecked {
-                i++;
+                ++i;
             }
         }
 
@@ -304,20 +313,20 @@ abstract contract ERC1155 {
 
     function _batchBurn(
         address from,
-        uint256[] memory ids,
-        uint256[] memory amounts
+        uint256[] calldata ids,
+        uint256[] calldata amounts
     ) internal {
         uint256 idsLength = ids.length; // saves MLOADs
 
         if (idsLength != amounts.length) revert ArrayParity();
 
-        for (uint256 i = 0; i < idsLength;) {
+        for (uint256 i; i < idsLength;) {
             balanceOf[from][ids[i]] -= amounts[i];
 
             // an array can't have a total length
             // larger than the max uint256 value
             unchecked {
-                i++;
+                ++i;
             }
         }
 
