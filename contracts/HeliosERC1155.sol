@@ -118,11 +118,10 @@ abstract contract HeliosERC1155 {
 
         balances = new uint256[](ownersLength);
 
-        // unchecked because the only math done is incrementing
-        // the array index counter which cannot possibly overflow
         for (uint256 i; i < ownersLength;) {
             balances[i] = balanceOf[owners[i]][ids[i]];
-
+            // unchecked because the only math done is incrementing
+            // the array index counter which cannot possibly overflow
             unchecked {
                 ++i;
             }
@@ -153,7 +152,7 @@ abstract contract HeliosERC1155 {
 
         emit TransferSingle(msg.sender, from, to, id, amount);
 
-        if (to.code.length != 0 ? to == address(0) :
+        if (to.code.length == 0 ? to == address(0) :
             ERC1155TokenReceiver(to).onERC1155Received(msg.sender, from, id, amount, data) !=
                 ERC1155TokenReceiver.onERC1155Received.selector
         ) revert InvalidReceiver();
@@ -179,7 +178,6 @@ abstract contract HeliosERC1155 {
 
             balanceOf[from][id] -= amount;
             balanceOf[to][id] += amount;
-
             // an array can't have a total length
             // larger than the max uint256 value
             unchecked {
@@ -189,7 +187,7 @@ abstract contract HeliosERC1155 {
 
         emit TransferBatch(msg.sender, from, to, ids, amounts);
 
-        if (to.code.length != 0 ? to == address(0) :
+        if (to.code.length == 0 ? to == address(0) :
             ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, from, ids, amounts, data) !=
                 ERC1155TokenReceiver.onERC1155BatchReceived.selector
         ) revert InvalidReceiver();
@@ -210,7 +208,8 @@ abstract contract HeliosERC1155 {
     ) public {
         if (block.timestamp > deadline) revert SigExpired();
    
-        // cannot realistically overflow on human timescales
+        // unchecked because the only math done is incrementing
+        // the owner's nonce which cannot realistically overflow
         unchecked {
             address signer = ecrecover(
                 keccak256(
@@ -267,37 +266,9 @@ abstract contract HeliosERC1155 {
 
         emit TransferSingle(msg.sender, address(0), to, id, amount);
 
-        if (to.code.length != 0 ? to == address(0) :
+        if (to.code.length == 0 ? to == address(0) :
             ERC1155TokenReceiver(to).onERC1155Received(msg.sender, address(0), id, amount, data) !=
-                ERC1155TokenReceiver.onERC1155Received.selector
-        ) revert InvalidReceiver();
-    }
-
-    function _batchMint(
-        address to,
-        uint256[] calldata ids,
-        uint256[] calldata amounts,
-        bytes calldata data
-    ) internal {
-        uint256 idsLength = ids.length; // saves MLOADs
-
-        if (idsLength != amounts.length) revert ArrayParity();
-
-        for (uint256 i; i < idsLength;) {
-            balanceOf[to][ids[i]] += amounts[i];
-
-            // an array can't have a total length
-            // larger than the max uint256 value
-            unchecked {
-                ++i;
-            }
-        }
-
-        emit TransferBatch(msg.sender, address(0), to, ids, amounts);
-
-        if (to.code.length != 0 ? to == address(0) :
-            ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, address(0), ids, amounts, data) !=
-                ERC1155TokenReceiver.onERC1155Received.selector
+               ERC1155TokenReceiver.onERC1155Received.selector
         ) revert InvalidReceiver();
     }
 
@@ -309,27 +280,5 @@ abstract contract HeliosERC1155 {
         balanceOf[from][id] -= amount;
 
         emit TransferSingle(msg.sender, from, address(0), id, amount);
-    }
-
-    function _batchBurn(
-        address from,
-        uint256[] calldata ids,
-        uint256[] calldata amounts
-    ) internal {
-        uint256 idsLength = ids.length; // saves MLOADs
-
-        if (idsLength != amounts.length) revert ArrayParity();
-
-        for (uint256 i; i < idsLength;) {
-            balanceOf[from][ids[i]] -= amounts[i];
-
-            // an array can't have a total length
-            // larger than the max uint256 value
-            unchecked {
-                ++i;
-            }
-        }
-
-        emit TransferBatch(msg.sender, from, address(0), ids, amounts);
     }
 }
