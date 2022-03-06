@@ -1,9 +1,10 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0-only
 
 pragma solidity >=0.8.4;
 
 /// @notice Gas optimized reentrancy protection for smart contracts
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/ReentrancyGuard.sol)
+/// License-Identifier: AGPL-3.0-only
 abstract contract ReentrancyGuard {
     error Reentrancy();
     
