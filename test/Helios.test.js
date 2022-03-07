@@ -70,4 +70,110 @@ describe("Helios", function () {
             "0x"
         )
     })
+
+    it("Should allow token0 swap using XYK", async function () {
+      token0.approve(helios.address, getBigNumber(1000))
+      token1.approve(helios.address, getBigNumber(1000))
+      
+      helios.createPair(
+          alice.address,
+          token0.address,
+          token1.address,
+          getBigNumber(100),
+          getBigNumber(100),
+          xyk.address,
+          0,
+          "0x"
+      )
+
+      helios.swap(
+        alice.address,
+        1,
+        token0.address,
+        getBigNumber(10)
+      )
+  })
+
+  it("Should allow token1 swap using XYK", async function () {
+    token0.approve(helios.address, getBigNumber(1000))
+    token1.approve(helios.address, getBigNumber(1000))
+    
+    helios.createPair(
+        alice.address,
+        token0.address,
+        token1.address,
+        getBigNumber(100),
+        getBigNumber(100),
+        xyk.address,
+        0,
+        "0x"
+    )
+
+    helios.swap(
+      alice.address,
+      1,
+      token1.address,
+      getBigNumber(10)
+    )
+  })
+
+  it("Should allow LP mint using XYK", async function () {
+    token0.approve(helios.address, getBigNumber(1000))
+    token1.approve(helios.address, getBigNumber(1000))
+    
+    helios.createPair(
+        alice.address,
+        token0.address,
+        token1.address,
+        getBigNumber(100),
+        getBigNumber(100),
+        xyk.address,
+        0,
+        "0x"
+    )
+
+    helios.swap(
+      alice.address,
+      1,
+      token0.address,
+      getBigNumber(10)
+    )
+
+    helios.addLiquidity(
+      alice.address,
+      1,
+      getBigNumber(100),
+      getBigNumber(100),
+      "0x"
+    )
+  })
+
+  it("Should allow LP burn using XYK", async function () {
+    token0.approve(helios.address, getBigNumber(1000))
+    token1.approve(helios.address, getBigNumber(1000))
+    
+    helios.createPair(
+        alice.address,
+        token0.address,
+        token1.address,
+        getBigNumber(100),
+        getBigNumber(100),
+        xyk.address,
+        0,
+        "0x"
+    )
+
+    helios.swap(
+      alice.address,
+      1,
+      token0.address,
+      getBigNumber(10)
+    )
+
+    helios.removeLiquidity(
+      alice.address,
+      1,
+      getBigNumber(10)
+    )
+  })
 })
