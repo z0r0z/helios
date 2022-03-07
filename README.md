@@ -13,6 +13,7 @@ Currently, pairs are supported. Can use raw ETH too.
 - [X] Core contracts
 - [X] XYK swapper
 - [ ] Concentrated swapper
+- [ ] Incentives
 
 
 
