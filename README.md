@@ -9,12 +9,13 @@ Math is handled by external helper contracts called `swapper`.
 
 Currently, pairs are supported. Can use raw ETH too.
 
-## Contributors
+## To-do
+- [X] Core contracts
+- [X] XYK swapper
+- [ ] Concentrated swapper
 
-⭐ [@therealNemani](https://twitter.com/therealNemani)
 
-⭐ [@0xmichalis](https://twitter.com/0xmichalis)
 
-⭐ [@a5f9t4](https://twitter.com/a5f9t4)
 
-⭐ [@r_ross_campbell](https://twitter.com/r_ross_campbell)
+
+
