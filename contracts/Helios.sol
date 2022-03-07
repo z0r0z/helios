@@ -92,9 +92,11 @@ contract Helios is HeliosERC1155, Multicall {
 
         if (pairSettings[token0][token1][swapper][fee] != 0) revert PairExists();
 
-        // if ETH attached, overwrite token0 and token0amount
-        if (msg.value != 0) {
-            token0 = address(0);
+        // if null included or value, assume ETH pairing
+        if (token0 == address(0) || msg.value != 0) {
+            // overwrite token0 with null if not so
+            if (token0 != address(0)) token0 = address(0);
+            // overwrite token0amount with value
             token0amount = uint112(msg.value);
             token1._safeTransferFrom(msg.sender, address(this), token1amount);
         } else {
