@@ -131,7 +131,7 @@ abstract contract HeliosERC1155 {
         return baseURI;
     }
 
-    function setApprovalForAll(address operator, bool approved) public {
+    function setApprovalForAll(address operator, bool approved) public payable {
         isApprovedForAll[msg.sender][operator] = approved;
 
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -143,7 +143,7 @@ abstract contract HeliosERC1155 {
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) public {
+    ) public payable {
         if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
         balanceOf[from][id] -= amount;
@@ -163,7 +163,7 @@ abstract contract HeliosERC1155 {
         uint256[] calldata ids,
         uint256[] calldata amounts,
         bytes calldata data
-    ) public {
+    ) public payable {
         uint256 idsLength = ids.length; // saves MLOADs
 
         if (idsLength != amounts.length) revert ArrayParity();
@@ -204,7 +204,7 @@ abstract contract HeliosERC1155 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public {
+    ) public payable {
         if (block.timestamp > deadline) revert SigExpired();
         // unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow
