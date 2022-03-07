@@ -5,7 +5,7 @@ pragma solidity >=0.8.4;
 import {HeliosERC1155} from './HeliosERC1155.sol';
 import {SafeTransferLib} from './libraries/SafeTransferLib.sol';
 import {Multicall} from './utils/Multicall.sol';
-import {IPairSwap} from './interfaces/IPairSwap.sol';
+import {IPair} from './interfaces/IPair.sol';
 
 /// @notice Extensible 1155-based exchange for liquidity pairs
 contract Helios is HeliosERC1155, Multicall {
@@ -51,7 +51,7 @@ contract Helios is HeliosERC1155, Multicall {
     struct Pair {
         address token0; // first pair token
         address token1; // second pair token
-        IPairSwap swapper; // pair output target
+        IPair swapper; // pair output target
         uint112 reserve0; // first pair token reserve
         uint112 reserve1; // second pair token reserve
         uint8 fee; // fee back to pair liquidity providers
@@ -78,7 +78,7 @@ contract Helios is HeliosERC1155, Multicall {
         address tokenB,
         uint256 tokenAamount,
         uint256 tokenBamount,
-        IPairSwap swapper,
+        IPair swapper,
         uint8 fee,
         bytes calldata data
     ) public payable returns (uint256 id, uint256 liq) {
