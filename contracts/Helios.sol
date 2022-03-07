@@ -46,7 +46,7 @@ contract Helios is HeliosERC1155, Multicall {
     /// @dev maps Helios LP to settings
     mapping(uint256 => Pair) public pairs;
     /// @dev internal mapping to check Helios LP settings
-    mapping(address => mapping(address => mapping(IPairSwap => mapping(uint256 => uint256)))) private pairSettings;
+    mapping(address => mapping(address => mapping(IPair => mapping(uint256 => uint256)))) private pairSettings;
 
     struct Pair {
         address token0; // first pair token
