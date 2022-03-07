@@ -83,18 +83,12 @@ contract Helios is HeliosERC1155, Multicall {
         bytes calldata data
     ) public payable returns (uint256 id, uint256 liq) {
         if (tokenA == tokenB) revert IdenticalTokens();
-        if (address(swapper) == address(0) || address(swapper).code.length == 0) revert NoSwapper();
+        if (address(swapper).code.length == 0) revert NoSwapper();
 
         // sort tokens and amounts
-        address token0; 
-        address token1;
-        uint112 token0amount;
-        uint112 token1amount;
-
-        if (tokenB > tokenA) {
-            (token0, token1) = (tokenB, tokenA);
-            (token0amount, token1amount) = (uint112(tokenBamount), uint112(tokenAamount));
-        }
+        (address token0, uint112 token0amount, address token1, uint112 token1amount) = 
+            tokenA < tokenB ? (tokenA, uint112(tokenAamount), tokenB, uint112(tokenBamount)) : 
+                (tokenB, uint112(tokenBamount), tokenA, uint112(tokenAamount));
 
         if (pairSettings[token0][token1][swapper][fee] != 0) revert PairExists();
 
