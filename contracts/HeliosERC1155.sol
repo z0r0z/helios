@@ -259,7 +259,10 @@ abstract contract HeliosERC1155 {
         uint256 amount,
         bytes calldata data
     ) internal {
-        balanceOf[to][id] += amount;
+        // overflow is checked in Helios by totalSupplyForId
+        unchecked {
+            balanceOf[to][id] += amount;
+        }
 
         emit TransferSingle(msg.sender, address(0), to, id, amount);
 
