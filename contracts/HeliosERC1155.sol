@@ -22,7 +22,7 @@ interface ERC1155TokenReceiver {
     ) external returns (bytes4);
 }
 
-/// @notice Minimalist and gas efficient standard ERC-1155 implementation with meta-tx support
+/// @notice Modern, minimalist, and gas efficient standard ERC-1155 implementation with meta-tx support
 /// @author Modified from Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/tokens/ERC1155.sol)
 /// License-Identifier: AGPL-3.0-only
 abstract contract HeliosERC1155 {
@@ -95,7 +95,7 @@ abstract contract HeliosERC1155 {
     /// ERC-165 Logic
     /// -----------------------------------------------------------------------
 
-    function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
         return
             interfaceId == 0x01ffc9a7 || // ERC-165 Interface ID for ERC-165
             interfaceId == 0xd9b67a26 || // ERC-165 Interface ID for ERC-1155
@@ -107,7 +107,7 @@ abstract contract HeliosERC1155 {
     /// -----------------------------------------------------------------------
 
     function balanceOfBatch(address[] calldata owners, uint256[] calldata ids)
-        public
+        external
         view
         returns (uint256[] memory balances)
     {
@@ -127,13 +127,12 @@ abstract contract HeliosERC1155 {
         }
     }
 
-    function uri(uint256) public view returns (string memory) {
+    function uri(uint256) external view returns (string memory) {
         return baseURI;
     }
 
-    function setApprovalForAll(address operator, bool approved) public payable {
+    function setApprovalForAll(address operator, bool approved) external payable {
         isApprovedForAll[msg.sender][operator] = approved;
-
         emit ApprovalForAll(msg.sender, operator, approved);
     }
 
@@ -143,7 +142,7 @@ abstract contract HeliosERC1155 {
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) public payable {
+    ) external payable {
         if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
         balanceOf[from][id] -= amount;
@@ -163,7 +162,7 @@ abstract contract HeliosERC1155 {
         uint256[] calldata ids,
         uint256[] calldata amounts,
         bytes calldata data
-    ) public payable {
+    ) external payable {
         uint256 idsLength = ids.length; // saves MLOADs
 
         if (idsLength != amounts.length) revert ArrayParity();
@@ -204,7 +203,7 @@ abstract contract HeliosERC1155 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public payable {
+    ) external payable {
         if (block.timestamp > deadline) revert SigExpired();
         // unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow
@@ -237,7 +236,7 @@ abstract contract HeliosERC1155 {
         return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
     }
 
-    function _computeDomainSeparator() internal view returns (bytes32) {
+    function _computeDomainSeparator() private view returns (bytes32) {
         return 
             keccak256(
                 abi.encode(
@@ -259,7 +258,7 @@ abstract contract HeliosERC1155 {
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) internal {
+    ) private {
         balanceOf[to][id] += amount;
 
         emit TransferSingle(msg.sender, address(0), to, id, amount);
@@ -274,7 +273,7 @@ abstract contract HeliosERC1155 {
         address from,
         uint256 id,
         uint256 amount
-    ) internal {
+    ) private {
         balanceOf[from][id] -= amount;
 
         emit TransferSingle(msg.sender, from, address(0), id, amount);
