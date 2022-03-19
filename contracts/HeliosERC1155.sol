@@ -180,13 +180,11 @@ abstract contract HeliosERC1155 {
 
             balanceOf[from][id] -= amount;
             // cannot overflow because the sum of all user
-            // balances can't exceed the max uint256 value for id
-            unchecked {
-                balanceOf[to][id] += amount;
-            }
-            // an array can't have a total length
+            // balances can't exceed the max uint256 value for id,
+            // and an array can't have a total length
             // larger than the max uint256 value
             unchecked {
+                balanceOf[to][id] += amount;
                 ++i;
             }
         }
