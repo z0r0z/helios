@@ -146,7 +146,11 @@ abstract contract HeliosERC1155 {
         if (msg.sender != from && !isApprovedForAll[from][msg.sender]) revert InvalidOperator();
 
         balanceOf[from][id] -= amount;
-        balanceOf[to][id] += amount;
+        // cannot overflow because the sum of all user
+        // balances can't exceed the max uint256 value for id
+        unchecked {
+            balanceOf[to][id] += amount;
+        }
 
         emit TransferSingle(msg.sender, from, to, id, amount);
 
@@ -175,7 +179,11 @@ abstract contract HeliosERC1155 {
             amount = amounts[i];
 
             balanceOf[from][id] -= amount;
-            balanceOf[to][id] += amount;
+            // cannot overflow because the sum of all user
+            // balances can't exceed the max uint256 value for id
+            unchecked {
+                balanceOf[to][id] += amount;
+            }
             // an array can't have a total length
             // larger than the max uint256 value
             unchecked {
@@ -278,7 +286,6 @@ abstract contract HeliosERC1155 {
         uint256 amount
     ) internal {
         balanceOf[from][id] -= amount;
-
         emit TransferSingle(msg.sender, from, address(0), id, amount);
     }
 }
