@@ -217,8 +217,11 @@ contract Helios is HeliosERC1155, Multicall {
 
         pair.reserve0 -= uint112(amount0out);
         pair.reserve1 -= uint112(amount1out);
-
-        totalSupplyForId[id] -= liq;
+        
+        // underflow is checked in HeliosERC1155 by balanceOf decrement
+        unchecked {
+            totalSupplyForId[id] -= liq;
+        }
 
         emit LiquidityRemoved(to, id, amount0out, amount1out);
     }
