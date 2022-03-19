@@ -81,7 +81,7 @@ contract Helios is HeliosERC1155, Multicall {
         IPair swapper,
         uint8 fee,
         bytes calldata data
-    ) public payable returns (uint256 id, uint256 liq) {
+    ) external payable returns (uint256 id, uint256 liq) {
         if (tokenA == tokenB) revert IdenticalTokens();
         if (address(swapper).code.length == 0) revert NoSwapper();
 
@@ -104,7 +104,10 @@ contract Helios is HeliosERC1155, Multicall {
             token1._safeTransferFrom(msg.sender, address(this), token1amount);
         }
 
-        id = ++totalSupply;
+        // incrementing supply won't overflow on human timescales
+        unchecked {
+            id = ++totalSupply;
+        }
         
         pairSettings[token0][token1][swapper][fee] = id;
 
@@ -146,14 +149,14 @@ contract Helios is HeliosERC1155, Multicall {
         uint256 token0amount,
         uint256 token1amount,
         bytes calldata data
-    ) public payable returns (uint256 liq) {
+    ) external payable returns (uint256 liq) {
         if (id > totalSupply) revert NoPair();
 
         Pair storage pair = pairs[id];
 
         // if base is address(0), assume ETH and overwrite amount
         if (pair.token0 == address(0)) {
-            token0amount = uint112(msg.value);
+            token0amount = msg.value;
             pair.token1._safeTransferFrom(msg.sender, address(this), token1amount);
         } else { 
             pair.token0._safeTransferFrom(msg.sender, address(this), token0amount);
@@ -190,7 +193,7 @@ contract Helios is HeliosERC1155, Multicall {
         address to, 
         uint256 id, 
         uint256 liq
-    ) public payable returns (uint256 amount0out, uint256 amount1out) {
+    ) external payable returns (uint256 amount0out, uint256 amount1out) {
         if (id > totalSupply) revert NoPair();
 
         Pair storage pair = pairs[id];
@@ -235,7 +238,7 @@ contract Helios is HeliosERC1155, Multicall {
         uint256 id, 
         address tokenIn, 
         uint256 amountIn
-    ) public payable returns (uint256 amountOut) {
+    ) external payable returns (uint256 amountOut) {
         if (id > totalSupply) revert NoPair();
 
         Pair storage pair = pairs[id];
