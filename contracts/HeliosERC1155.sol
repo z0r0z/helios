@@ -275,7 +275,6 @@ abstract contract HeliosERC1155 {
         uint256 amount
     ) private {
         balanceOf[from][id] -= amount;
-
         emit TransferSingle(msg.sender, from, address(0), id, amount);
     }
 }
