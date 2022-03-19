@@ -194,6 +194,23 @@ abstract contract HeliosERC1155 {
     /// -----------------------------------------------------------------------
     /// EIP-2612-like Logic
     /// -----------------------------------------------------------------------
+    
+    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
+    }
+
+    function _computeDomainSeparator() private view returns (bytes32) {
+        return 
+            keccak256(
+                abi.encode(
+                    keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+                    keccak256(bytes(name)),
+                    bytes('1'),
+                    block.chainid,
+                    address(this)
+                )
+            );
+    }
 
     function permit(
         address owner,
@@ -230,23 +247,6 @@ abstract contract HeliosERC1155 {
         isApprovedForAll[owner][operator] = approved;
 
         emit ApprovalForAll(owner, operator, approved);
-    }
-
-    function DOMAIN_SEPARATOR() public view returns (bytes32) {
-        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : _computeDomainSeparator();
-    }
-
-    function _computeDomainSeparator() private view returns (bytes32) {
-        return 
-            keccak256(
-                abi.encode(
-                    keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
-                    keccak256(bytes(name)),
-                    bytes('1'),
-                    block.chainid,
-                    address(this)
-                )
-            );
     }
 
     /// -----------------------------------------------------------------------
