@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-
 pragma solidity >=0.8.4;
 
 /// @notice Gas optimized reentrancy protection for smart contracts
@@ -12,7 +11,6 @@ abstract contract ReentrancyGuard {
 
     modifier nonReentrant() {
         if (locked != 1) revert Reentrancy();
-
         locked = 2;
         _;
         locked = 1;
