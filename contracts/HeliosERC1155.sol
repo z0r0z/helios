@@ -69,8 +69,8 @@ abstract contract HeliosERC1155 {
     /// EIP-2612-like Storage
     /// -----------------------------------------------------------------------
 
-    uint256 internal immutable INITIAL_CHAIN_ID;
-    bytes32 internal immutable INITIAL_DOMAIN_SEPARATOR;
+    uint256 private immutable INITIAL_CHAIN_ID;
+    bytes32 private immutable INITIAL_DOMAIN_SEPARATOR;
 
     mapping(address => uint256) public nonces;
 
@@ -258,7 +258,7 @@ abstract contract HeliosERC1155 {
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) private {
+    ) internal {
         balanceOf[to][id] += amount;
 
         emit TransferSingle(msg.sender, address(0), to, id, amount);
@@ -273,8 +273,9 @@ abstract contract HeliosERC1155 {
         address from,
         uint256 id,
         uint256 amount
-    ) private {
+    ) internal {
         balanceOf[from][id] -= amount;
+
         emit TransferSingle(msg.sender, from, address(0), id, amount);
     }
 }
