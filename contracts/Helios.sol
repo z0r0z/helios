@@ -91,7 +91,7 @@ contract Helios is HeliosERC1155, Multicall {
 
         if (pairSettings[token0][token1][swapper][fee] != 0) revert PairExists();
 
-        // if null included or value, assume ETH pairing
+        // if null included or msg.value, assume ETH pairing
         if (token0 == address(0) || msg.value != 0) {
             // overwrite token0 with null if not so
             if (token0 != address(0)) token0 = address(0);
@@ -196,13 +196,7 @@ contract Helios is HeliosERC1155, Multicall {
         if (id > totalSupply) revert NoPair();
 
         Pair storage pair = pairs[id];
-
-        _burn(
-            msg.sender,
-            id,
-            liq
-        );
-
+        
         // swapper dictates output amounts
         (amount0out, amount1out) = pair.swapper.removeLiquidity(id, liq);
         
@@ -213,6 +207,12 @@ contract Helios is HeliosERC1155, Multicall {
         }
 
         pair.token1._safeTransfer(to, amount1out);
+        
+        _burn(
+            msg.sender,
+            id,
+            liq
+        );
 
         pair.reserve0 -= uint112(amount0out);
         pair.reserve1 -= uint112(amount1out);
