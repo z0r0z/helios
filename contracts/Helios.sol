@@ -18,10 +18,10 @@ contract Helios is HeliosERC1155, Multicall {
     /// Events
     /// -----------------------------------------------------------------------
 
-    event PairCreated(address indexed to, uint256 indexed id, address token0, address token1);
-    event LiquidityAdded(address indexed to, uint256 indexed id, uint256 token0amount, uint256 token1amount);
-    event LiquidityRemoved(address indexed from, uint256 indexed id, uint256 amount0out, uint256 amount1out);
-    event Swapped(address indexed to, uint256 indexed id, address tokenIn, uint256 amountIn, uint256 amountOut);
+    event PairCreated(address indexed to, uint256 id, address indexed token0, address indexed token1);
+    event LiquidityAdded(address indexed to, uint256 id, uint256 token0amount, uint256 token1amount);
+    event LiquidityRemoved(address indexed from, uint256 id, uint256 amount0out, uint256 amount1out);
+    event Swapped(address indexed to, uint256 id, address indexed tokenIn, uint256 amountIn, uint256 amountOut);
 
     /// -----------------------------------------------------------------------
     /// Errors
