@@ -37,7 +37,6 @@ abstract contract HeliosERC1155 {
         uint256 id,
         uint256 amount
     );
-
     event TransferBatch(
         address indexed operator,
         address indexed from,
@@ -45,7 +44,6 @@ abstract contract HeliosERC1155 {
         uint256[] ids,
         uint256[] amounts
     );
-
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     /// -----------------------------------------------------------------------
