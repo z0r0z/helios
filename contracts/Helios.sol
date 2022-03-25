@@ -166,16 +166,16 @@ contract Helios is HeliosERC1155, Multicall {
         liq = pair.swapper.addLiquidity(id, token0amount, token1amount);
         
         if (liq == 0) revert NoLiquidity();
-
-        pair.reserve0 += uint112(token0amount);
-        pair.reserve1 += uint112(token1amount);
-
+        
         _mint(
             to,
             id,
             liq,
             data
         );
+
+        pair.reserve0 += uint112(token0amount);
+        pair.reserve1 += uint112(token1amount);
 
         totalSupplyForId[id] += liq;
 
