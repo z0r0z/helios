@@ -13,5 +13,6 @@ interface IHelios {
     }
 
     function pairs(uint256 id) external view returns (Pair memory pair);
+    
     function totalSupplyForId(uint256 id) external view returns (uint256);
 }
