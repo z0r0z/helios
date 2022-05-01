@@ -131,7 +131,7 @@ contract Helios is HeliosERC1155, Multicall {
 
         totalSupplyForId[id] = liq;
 
-        emit PairCreated(to, id, token0, token1);
+        //emit PairCreated(to, id, token0, token1);
         emit LiquidityAdded(to, id, token0amount, token1amount);
     }
 
