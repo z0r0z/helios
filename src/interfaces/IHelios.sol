@@ -8,7 +8,7 @@ interface IHelios {
     struct Pair {
         ERC20 token0; 
         ERC20 token1; 
-        address swapper; 
+        IHelios swapper; 
         uint112 reserve0; 
         uint112 reserve1; 
         uint8 fee;

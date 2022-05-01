@@ -455,8 +455,8 @@
       }
     },
     "C:\\Users\\rossc\\Helios\\src\\interfaces\\IHelios.sol": {
-      "lastModificationDate": 1651416716952,
-      "contentHash": "7f7de2945302dc11d3bfeb32f373e1a9",
+      "lastModificationDate": 1651416955074,
+      "contentHash": "5962d1b9c2fa649eae1821beb04560a4",
       "sourceName": "src\\interfaces\\IHelios.sol",
       "solcConfig": {
         "settings": {
