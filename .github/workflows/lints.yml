@@ -18,6 +18,6 @@ jobs:
       - name: Install Dependencies
         run: yarn
       - name: Update Modules
-        run: yarn sync
+        run: yarn update
       - name: Run lints
         run: yarn lint

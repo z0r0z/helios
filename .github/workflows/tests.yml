@@ -16,6 +16,6 @@ jobs:
       - name: Install Dependencies
         run: yarn
       - name: Update Modules
-        run: yarn sync
+        run: yarn update
       - name: Run Tests
         run: FOUNDRY_PROFILE=ci yarn test
