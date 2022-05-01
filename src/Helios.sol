@@ -1,38 +1,40 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {HeliosERC1155} from './HeliosERC1155.sol';
-import {SafeTransferLib} from './libraries/SafeTransferLib.sol';
+import {ERC1155 as SolmateERC1155} from "@solmate/tokens/ERC1155.sol";
+import {ERC20, SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {Multicall} from './utils/Multicall.sol';
-import {IPair} from './interfaces/IPair.sol';
+import {IHelios} from './interfaces/IHelios.sol';
 
-/// @notice Extensible 1155-based exchange for liquidity pairs
-contract Helios is HeliosERC1155, Multicall {
+/// @notice Extensible 1155-based vault with router and liquidity pairing
+/// @author z0r0z.eth
+contract Helios is SolmateERC1155, Multicall {
     /// -----------------------------------------------------------------------
     /// Library usage
     /// -----------------------------------------------------------------------
 
     using SafeTransferLib for address;
+    using SafeTransferLib for ERC20;
 
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
-    event PairCreated(address indexed to, uint256 id, address indexed token0, address indexed token1);
+    event PairCreated(address indexed to, uint256 id, ERC20 indexed token0, ERC20 indexed token1);
     event LiquidityAdded(address indexed to, uint256 id, uint256 token0amount, uint256 token1amount);
     event LiquidityRemoved(address indexed from, uint256 id, uint256 amount0out, uint256 amount1out);
-    event Swapped(address indexed to, uint256 id, address indexed tokenIn, uint256 amountIn, uint256 amountOut);
+    event Swapped(address indexed to, uint256 id, ERC20 indexed tokenIn, uint256 amountIn, uint256 amountOut);
 
     /// -----------------------------------------------------------------------
-    /// Errors
+    /// Metadata/URI logic
     /// -----------------------------------------------------------------------
 
-    error IdenticalTokens();
-    error NoSwapper();
-    error PairExists();
-    error NoPair();
-    error NoLiquidity();
-    error NotPairToken();
+    string public constant name = "Helios";
+    string public constant symbol = "HELI";
+
+    function uri(uint256) public override pure returns (string memory) {
+        return "PLACEHOLDER";
+    }
 
     /// -----------------------------------------------------------------------
     /// LP Storage
@@ -45,12 +47,12 @@ contract Helios is HeliosERC1155, Multicall {
     /// @dev maps Helios LP to settings
     mapping(uint256 => Pair) public pairs;
     /// @dev internal mapping to check Helios LP settings
-    mapping(address => mapping(address => mapping(IPair => mapping(uint256 => uint256)))) private pairSettings;
+    mapping(ERC20 => mapping(ERC20 => mapping(IHelios => mapping(uint256 => uint256)))) private pairSettings;
 
     struct Pair {
-        address token0; // first pair token
-        address token1; // second pair token
-        IPair swapper; // pair output target
+        ERC20 token0; // first pair token
+        ERC20 token1; // second pair token
+        IHelios swapper; // pair output target
         uint112 reserve0; // first pair token reserve
         uint112 reserve1; // second pair token reserve
         uint8 fee; // fee back to pair liquidity providers
@@ -73,34 +75,34 @@ contract Helios is HeliosERC1155, Multicall {
     /// @return liq The liquidity output from swapper
     function createPair(
         address to,
-        address tokenA,
-        address tokenB,
+        ERC20 tokenA,
+        ERC20 tokenB,
         uint256 tokenAamount,
         uint256 tokenBamount,
-        IPair swapper,
+        IHelios swapper,
         uint8 fee,
         bytes calldata data
     ) external payable returns (uint256 id, uint256 liq) {
-        if (tokenA == tokenB) revert IdenticalTokens();
-        if (address(swapper).code.length == 0) revert NoSwapper();
+        require(tokenA != tokenB, "Helios: IDENTICAL_ADDRESSES");
+        require(address(swapper).code.length != 0, "Helios: INVALID_SWAPPER");
 
         // sort tokens and amounts
-        (address token0, uint112 token0amount, address token1, uint112 token1amount) = 
+        (ERC20 token0, uint112 token0amount, ERC20 token1, uint112 token1amount) = 
             tokenA < tokenB ? (tokenA, uint112(tokenAamount), tokenB, uint112(tokenBamount)) : 
                 (tokenB, uint112(tokenBamount), tokenA, uint112(tokenAamount));
 
-        if (pairSettings[token0][token1][swapper][fee] != 0) revert PairExists();
+        require(pairSettings[token0][token1][swapper][fee] == 0, "Helios: PAIR_EXISTS");
 
         // if null included or msg.value, assume ETH pairing
-        if (token0 == address(0) || msg.value != 0) {
+        if (address(token0) == address(0) || msg.value != 0) {
             // overwrite token0 with null if not so
-            if (token0 != address(0)) token0 = address(0);
+            if (address(token0) != address(0)) token0 = ERC20(address(0));
             // overwrite token0amount with value
             token0amount = uint112(msg.value);
-            token1._safeTransferFrom(msg.sender, address(this), token1amount);
+            token1.safeTransferFrom(msg.sender, address(this), token1amount);
         } else {
-            token0._safeTransferFrom(msg.sender, address(this), token0amount);
-            token1._safeTransferFrom(msg.sender, address(this), token1amount);
+            token0.safeTransferFrom(msg.sender, address(this), token0amount);
+            token1.safeTransferFrom(msg.sender, address(this), token1amount);
         }
 
         // incrementing supply won't overflow on human timescales
@@ -149,23 +151,23 @@ contract Helios is HeliosERC1155, Multicall {
         uint256 token1amount,
         bytes calldata data
     ) external payable returns (uint256 liq) {
-        if (id > totalSupply) revert NoPair();
+        require(id <= totalSupply, "Helios: PAIR_DOESNT_EXIST");
 
         Pair storage pair = pairs[id];
 
         // if base is address(0), assume ETH and overwrite amount
-        if (pair.token0 == address(0)) {
+        if (address(pair.token0) == address(0)) {
             token0amount = msg.value;
-            pair.token1._safeTransferFrom(msg.sender, address(this), token1amount);
+            pair.token1.safeTransferFrom(msg.sender, address(this), token1amount);
         } else { 
-            pair.token0._safeTransferFrom(msg.sender, address(this), token0amount);
-            pair.token1._safeTransferFrom(msg.sender, address(this), token1amount);
+            pair.token0.safeTransferFrom(msg.sender, address(this), token0amount);
+            pair.token1.safeTransferFrom(msg.sender, address(this), token1amount);
         }
 
         // swapper dictates output LP
         liq = pair.swapper.addLiquidity(id, token0amount, token1amount);
         
-        if (liq == 0) revert NoLiquidity();
+        require(liq != 0, "Helios: INSUFFICIENT_LIQUIDITY_MINTED");
         
         _mint(
             to,
@@ -193,20 +195,20 @@ contract Helios is HeliosERC1155, Multicall {
         uint256 id, 
         uint256 liq
     ) external payable returns (uint256 amount0out, uint256 amount1out) {
-        if (id > totalSupply) revert NoPair();
+        require(id <= totalSupply, "Helios: PAIR_DOESNT_EXIST");
 
         Pair storage pair = pairs[id];
         
         // swapper dictates output amounts
         (amount0out, amount1out) = pair.swapper.removeLiquidity(id, liq);
         
-        if (pair.token0 == address(0)) {
-            to._safeTransferETH(amount0out);
+        if (address(pair.token0) == address(0)) {
+            to.safeTransferETH(amount0out);
         } else {
-            pair.token0._safeTransfer(to, amount0out);
+            pair.token0.safeTransfer(to, amount0out);
         }
 
-        pair.token1._safeTransfer(to, amount1out);
+        pair.token1.safeTransfer(to, amount1out);
         
         _burn(
             msg.sender,
@@ -238,35 +240,35 @@ contract Helios is HeliosERC1155, Multicall {
     function swap(
         address to, 
         uint256 id, 
-        address tokenIn, 
+        ERC20 tokenIn, 
         uint256 amountIn
     ) external payable returns (uint256 amountOut) {
-        if (id > totalSupply) revert NoPair();
+        require(id <= totalSupply, "Helios: PAIR_DOESNT_EXIST");
 
         Pair storage pair = pairs[id];
 
-        if (tokenIn != pair.token0 && tokenIn != pair.token1) revert NotPairToken();
+        require(tokenIn == pair.token0 || tokenIn == pair.token1, "Helios: NOT_PAIR_TOKEN");
         
-        if (tokenIn == address(0)) {
+        if (address(tokenIn) == address(0)) {
             amountIn = msg.value;
         } else {
-            tokenIn._safeTransferFrom(msg.sender, address(this), amountIn);
+            tokenIn.safeTransferFrom(msg.sender, address(this), amountIn);
         }
 
         // swapper dictates output amount
-        amountOut = pair.swapper.swap(id, tokenIn, amountIn);
+        amountOut = pair.swapper.swap(id, address(tokenIn), amountIn);
 
         if (tokenIn == pair.token1) {
-            if (pair.token0 == address(0)) {
-                to._safeTransferETH(amountOut);
+            if (address(pair.token0) == address(0)) {
+                to.safeTransferETH(amountOut);
             } else {
-                pair.token0._safeTransfer(to, amountOut);
+                pair.token0.safeTransfer(to, amountOut);
             }
 
             pair.reserve0 -= uint112(amountOut);
             pair.reserve1 += uint112(amountIn);
         } else {
-            pair.token1._safeTransfer(to, amountOut);
+            pair.token1.safeTransfer(to, amountOut);
 
             pair.reserve0 += uint112(amountIn);
             pair.reserve1 -= uint112(amountOut);

@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.4;
 
-import {Helios} from "../Helios.sol";
+import {IHelios, Helios} from '../Helios.sol';
+import {XYKswapper} from '../swappers/XYKswapper.sol';
+
+import {ERC20, MockERC20} from '@solmate/test/utils/mocks/MockERC20.sol';
 
 import "@std/Test.sol";
 
 contract HeliosTest is Test {
     Helios helios;
-
-    uint256 counter;
+    XYKswapper xykSwapperContract;
+    IHelios xykSwapper = IHelios(address(xykSwapperContract));
+    MockERC20 token0;
+    MockERC20 token1;
 
     /// @dev Users
 
@@ -28,13 +33,32 @@ contract HeliosTest is Test {
 
     function setUp() public {
         helios = new Helios();
+        xykSwapperContract = new XYKswapper();
+        
+        token0 = new MockERC20("Token0", "TKN0", 18);
+        token1 = new MockERC20("Token1", "TKN1", 18);
+
+        token0.mint(address(this), 1_000_000 ether);
+        token1.mint(address(this), 1_000_000 ether);
+
+        token0.approve(address(helios), 1_000_000_0 ether);
+        token1.approve(address(helios), 1_000_000_0 ether);
     }
 
-    function testCreation() public {
+    function testHeliosCreation() public {
         helios = new Helios();
     }
 
     function testXYKpairCreation() public {
-        counter++;
+        //helios.createPair(
+        //    address(this), 
+        //    token0, 
+        //    token1, 
+        //    1_000 ether, 
+        //    1_000 ether, 
+        //    xykSwapper, 
+        //    0, 
+        //    ''
+        //);
     }
 }

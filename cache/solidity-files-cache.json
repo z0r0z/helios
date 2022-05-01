@@ -1,26 +1,15 @@
 {
-  "_format": "ethers-rs-sol-cache-3",
-  "paths": {
-    "artifacts": "out",
-    "sources": "src",
-    "tests": "test",
-    "libraries": [
-      "lib"
-    ]
-  },
+  "_format": "ethers-rs-sol-cache-2",
   "files": {
-    "/Users/shiv/Projects/Helios/lib/ds-test/src/test.sol": {
-      "lastModificationDate": 1651405532787,
-      "contentHash": "82a8604fe648c30a9bd56444368704f0",
-      "sourceName": "lib/ds-test/src/test.sol",
+    "C:\\Users\\rossc\\Helios\\lib\\ds-test\\src/test.sol": {
+      "lastModificationDate": 1651404868689,
+      "contentHash": "2c9806925f5d78ba4f4fb0570611cca3",
+      "sourceName": "lib\\ds-test\\src/test.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
           },
           "outputSelection": {
             "*": {
@@ -42,22 +31,19 @@
       "versionRequirement": ">=0.5.0",
       "artifacts": {
         "DSTest": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "test.sol/DSTest.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "test.sol\\DSTest.json"
         }
       }
     },
-    "/Users/shiv/Projects/Helios/lib/forge-std/src/Test.sol": {
-      "lastModificationDate": 1651405532833,
-      "contentHash": "e749fa5c4e3acdd7dc290856cd700526",
+    "C:\\Users\\rossc\\Helios\\lib/forge-std/src/Test.sol": {
+      "lastModificationDate": 1651403063108,
+      "contentHash": "1ece9d35c29f52812986b580299aa708",
       "sourceName": "lib/forge-std/src/Test.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
           },
           "outputSelection": {
             "*": {
@@ -76,39 +62,36 @@
         }
       },
       "imports": [
-        "lib/ds-test/src/test.sol",
-        "lib/forge-std/src/Vm.sol",
-        "lib/forge-std/src/console.sol",
-        "lib/forge-std/src/console2.sol"
+        "lib\\ds-test\\src/test.sol",
+        "lib\\forge-std\\src\\Vm.sol",
+        "lib\\forge-std\\src\\console.sol",
+        "lib\\forge-std\\src\\console2.sol"
       ],
       "versionRequirement": ">=0.6.0, <0.9.0",
       "artifacts": {
         "Test": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "Test.sol/Test.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "Test.sol\\Test.json"
         },
         "stdError": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "Test.sol/stdError.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "Test.sol\\stdError.json"
         },
         "stdMath": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "Test.sol/stdMath.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "Test.sol\\stdMath.json"
         },
         "stdStorage": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "Test.sol/stdStorage.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "Test.sol\\stdStorage.json"
         }
       }
     },
-    "/Users/shiv/Projects/Helios/lib/forge-std/src/Vm.sol": {
-      "lastModificationDate": 1651405532833,
-      "contentHash": "68267534847dee7df6e39d49e8a994c9",
-      "sourceName": "lib/forge-std/src/Vm.sol",
+    "C:\\Users\\rossc\\Helios\\lib\\forge-std\\src\\Vm.sol": {
+      "lastModificationDate": 1651403063108,
+      "contentHash": "a22fa01e11b459780d75741f9831bf77",
+      "sourceName": "lib\\forge-std\\src\\Vm.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
           },
           "outputSelection": {
             "*": {
@@ -130,22 +113,19 @@
       "versionRequirement": ">=0.6.0",
       "artifacts": {
         "Vm": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "Vm.sol/Vm.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "Vm.sol\\Vm.json"
         }
       }
     },
-    "/Users/shiv/Projects/Helios/lib/forge-std/src/console.sol": {
-      "lastModificationDate": 1651405532833,
-      "contentHash": "100b8a33b917da1147740d7ab8b0ded3",
-      "sourceName": "lib/forge-std/src/console.sol",
+    "C:\\Users\\rossc\\Helios\\lib\\forge-std\\src\\console.sol": {
+      "lastModificationDate": 1651403063108,
+      "contentHash": "c8cf989d04bc2e3069e3d91facf3b69c",
+      "sourceName": "lib\\forge-std\\src\\console.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
           },
           "outputSelection": {
             "*": {
@@ -167,22 +147,19 @@
       "versionRequirement": ">=0.4.22, <0.9.0",
       "artifacts": {
         "console": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "console.sol/console.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "console.sol\\console.json"
         }
       }
     },
-    "/Users/shiv/Projects/Helios/lib/forge-std/src/console2.sol": {
-      "lastModificationDate": 1651405532833,
-      "contentHash": "5df91f8e93efbfcccf68973dc1b74a70",
-      "sourceName": "lib/forge-std/src/console2.sol",
+    "C:\\Users\\rossc\\Helios\\lib\\forge-std\\src\\console2.sol": {
+      "lastModificationDate": 1651403063132,
+      "contentHash": "84e14285f3171a14073d0f81363094ac",
+      "sourceName": "lib\\forge-std\\src\\console2.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
           },
           "outputSelection": {
             "*": {
@@ -204,22 +181,19 @@
       "versionRequirement": ">=0.4.22, <0.9.0",
       "artifacts": {
         "console2": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "console2.sol/console2.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "console2.sol\\console2.json"
         }
       }
     },
-    "/Users/shiv/Projects/Helios/src/Helios.sol": {
-      "lastModificationDate": 1651405918234,
-      "contentHash": "baa5b40c47787e94926b8f7a2b953eae",
-      "sourceName": "src/Helios.sol",
+    "C:\\Users\\rossc\\Helios\\lib/solmate/src/test/utils/mocks/MockERC20.sol": {
+      "lastModificationDate": 1651403049508,
+      "contentHash": "a43ff973f6fc1afad3fb92e761b233fc",
+      "sourceName": "lib/solmate/src/test/utils/mocks/MockERC20.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
           },
           "outputSelection": {
             "*": {
@@ -238,30 +212,220 @@
         }
       },
       "imports": [
-        "src/HeliosERC1155.sol",
-        "src/interfaces/IPair.sol",
-        "src/libraries/SafeTransferLib.sol",
-        "src/utils/Multicall.sol"
+        "lib\\solmate\\src\\tokens\\ERC20.sol"
       ],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "Helios": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "Helios.sol/Helios.json"
-        }
-      }
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {}
     },
-    "/Users/shiv/Projects/Helios/src/HeliosERC1155.sol": {
-      "lastModificationDate": 1651405521115,
-      "contentHash": "e40e98646a325b434d75c6095665a238",
-      "sourceName": "src/HeliosERC1155.sol",
+    "C:\\Users\\rossc\\Helios\\lib/solmate/src/tokens/ERC1155.sol": {
+      "lastModificationDate": 1651403049519,
+      "contentHash": "90a8b9e8b5d139b9d4afcaff23e91ffc",
+      "sourceName": "lib/solmate/src/tokens/ERC1155.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 1000
           },
-          "metadata": {
-            "bytecodeHash": "ipfs"
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\lib\\solmate\\src\\tokens\\ERC20.sol": {
+      "lastModificationDate": 1651403049524,
+      "contentHash": "d2ad526807a28c2037b29b17aa2dbbc1",
+      "sourceName": "lib\\solmate\\src\\tokens\\ERC20.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\lib/solmate/src/utils/FixedPointMathLib.sol": {
+      "lastModificationDate": 1651403049532,
+      "contentHash": "4edb8681c75d51cec371196825e5a254",
+      "sourceName": "lib/solmate/src/utils/FixedPointMathLib.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "FixedPointMathLib": {
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "FixedPointMathLib.sol\\FixedPointMathLib.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\Helios\\lib/solmate/src/utils/ReentrancyGuard.sol": {
+      "lastModificationDate": 1651403049533,
+      "contentHash": "c26f0928258a572fc6289e5c7cc38e66",
+      "sourceName": "lib/solmate/src/utils/ReentrancyGuard.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {
+        "ReentrancyGuard": {
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "ReentrancyGuard.sol\\ReentrancyGuard.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\Helios\\lib/solmate/src/utils/SafeTransferLib.sol": {
+      "lastModificationDate": 1651403049537,
+      "contentHash": "901143ac3d277abe11d6e2b75141bc3b",
+      "sourceName": "lib/solmate/src/utils/SafeTransferLib.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "lib\\solmate\\src\\tokens\\ERC20.sol"
+      ],
+      "versionRequirement": ">=0.8.0",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\Helios.sol": {
+      "lastModificationDate": 1651415777935,
+      "contentHash": "fc606af6e2e98bc1c584d4126f1917b8",
+      "sourceName": "src\\Helios.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "lib/solmate/src/tokens/ERC1155.sol",
+        "lib\\solmate\\src\\tokens\\ERC20.sol",
+        "lib/solmate/src/utils/SafeTransferLib.sol",
+        "src\\interfaces\\IHelios.sol",
+        "src\\utils\\Multicall.sol"
+      ],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "Helios": {
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "Helios.sol\\Helios.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\Helios\\src\\HeliosERC1155.sol": {
+      "lastModificationDate": 1651401622247,
+      "contentHash": "87b255b962f85a14fafc1fc84dfcdf73",
+      "sourceName": "src\\HeliosERC1155.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
           },
           "outputSelection": {
             "*": {
@@ -283,221 +447,22 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "ERC1155TokenReceiver": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "HeliosERC1155.sol/ERC1155TokenReceiver.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "HeliosERC1155.sol\\ERC1155TokenReceiver.json"
         },
         "HeliosERC1155": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "HeliosERC1155.sol/HeliosERC1155.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "HeliosERC1155.sol\\HeliosERC1155.json"
         }
       }
     },
-    "/Users/shiv/Projects/Helios/src/interfaces/IHelios.sol": {
-      "lastModificationDate": 1651405521115,
-      "contentHash": "93e00317f870e975e748ba6fb8ee875c",
-      "sourceName": "src/interfaces/IHelios.sol",
+    "C:\\Users\\rossc\\Helios\\src\\interfaces\\IHelios.sol": {
+      "lastModificationDate": 1651416716952,
+      "contentHash": "7f7de2945302dc11d3bfeb32f373e1a9",
+      "sourceName": "src\\interfaces\\IHelios.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "IHelios": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "IHelios.sol/IHelios.json"
-        }
-      }
-    },
-    "/Users/shiv/Projects/Helios/src/interfaces/IPair.sol": {
-      "lastModificationDate": 1651405521115,
-      "contentHash": "0a2233a15189180c26108a6596d2eb56",
-      "sourceName": "src/interfaces/IPair.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "IPair": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "IPair.sol/IPair.json"
-        }
-      }
-    },
-    "/Users/shiv/Projects/Helios/src/libraries/SafeTransferLib.sol": {
-      "lastModificationDate": 1651405521115,
-      "contentHash": "3f09fa1da2607b278b001abd6f91d3b9",
-      "sourceName": "src/libraries/SafeTransferLib.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "SafeTransferLib": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "SafeTransferLib.sol/SafeTransferLib.json"
-        }
-      }
-    },
-    "/Users/shiv/Projects/Helios/src/libraries/math/SqrtMath.sol": {
-      "lastModificationDate": 1651405521115,
-      "contentHash": "63b9884414b5b4e07600959263bf439e",
-      "sourceName": "src/libraries/math/SqrtMath.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "SqrtMath": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "SqrtMath.sol/SqrtMath.json"
-        }
-      }
-    },
-    "/Users/shiv/Projects/Helios/src/migration/HeliosMigrator.sol": {
-      "lastModificationDate": 1651405521115,
-      "contentHash": "0de4c15b3d46f6e04d201f0b53bb0788",
-      "sourceName": "src/migration/HeliosMigrator.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [
-        "src/libraries/SafeTransferLib.sol"
-      ],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "HeliosMigrator": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "HeliosMigrator.sol/HeliosMigrator.json"
-        },
-        "IERC20minimal": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "HeliosMigrator.sol/IERC20minimal.json"
-        },
-        "IPair": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "HeliosMigrator.sol/IPair.json"
-        },
-        "IUniswapV2Minimal": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "HeliosMigrator.sol/IUniswapV2Minimal.json"
-        }
-      }
-    },
-    "/Users/shiv/Projects/Helios/src/mocks/ERC20.sol": {
-      "lastModificationDate": 1651405521115,
-      "contentHash": "a5939a34b44efd1b5b23090de99a1187",
-      "sourceName": "src/mocks/ERC20.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
           },
           "outputSelection": {
             "*": {
@@ -519,22 +484,22 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "ERC20": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "ERC20.sol/ERC20.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "IHelios.sol\\ERC20.json"
+        },
+        "IHelios": {
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "IHelios.sol\\IHelios.json"
         }
       }
     },
-    "/Users/shiv/Projects/Helios/src/swappers/XYKswapper.sol": {
-      "lastModificationDate": 1651405521115,
-      "contentHash": "e2b209933d1e2efe2ae89761fd5f7deb",
-      "sourceName": "src/swappers/XYKswapper.sol",
+    "C:\\Users\\rossc\\Helios\\src\\swappers\\XYKswapper.sol": {
+      "lastModificationDate": 1651415364870,
+      "contentHash": "77f902dd6f7692b8dcb82b61fc9a2ca5",
+      "sourceName": "src\\swappers\\XYKswapper.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
           },
           "outputSelection": {
             "*": {
@@ -553,29 +518,26 @@
         }
       },
       "imports": [
-        "src/interfaces/IHelios.sol",
-        "src/libraries/math/SqrtMath.sol",
-        "src/utils/ReentrancyGuard.sol"
+        "lib/solmate/src/utils/FixedPointMathLib.sol",
+        "lib/solmate/src/utils/ReentrancyGuard.sol",
+        "src\\interfaces\\IHelios.sol"
       ],
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "XYKswapper": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "XYKswapper.sol/XYKswapper.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "XYKswapper.sol\\XYKswapper.json"
         }
       }
     },
-    "/Users/shiv/Projects/Helios/src/test/Helios.t.sol": {
-      "lastModificationDate": 1651406376955,
-      "contentHash": "343dc5743447a2b958b54ef71f0e629e",
-      "sourceName": "src/test/Helios.t.sol",
+    "C:\\Users\\rossc\\Helios\\src\\test\\Helios.t.sol": {
+      "lastModificationDate": 1651416763065,
+      "contentHash": "fb3f977ae39c57be669a8e9238d333e8",
+      "sourceName": "src\\test\\Helios.t.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
           },
           "outputSelection": {
             "*": {
@@ -594,36 +556,38 @@
         }
       },
       "imports": [
-        "lib/ds-test/src/test.sol",
+        "lib\\ds-test\\src/test.sol",
         "lib/forge-std/src/Test.sol",
-        "lib/forge-std/src/Vm.sol",
-        "lib/forge-std/src/console.sol",
-        "lib/forge-std/src/console2.sol",
-        "src/Helios.sol",
-        "src/HeliosERC1155.sol",
-        "src/interfaces/IPair.sol",
-        "src/libraries/SafeTransferLib.sol",
-        "src/utils/Multicall.sol"
+        "lib\\forge-std\\src\\Vm.sol",
+        "lib\\forge-std\\src\\console.sol",
+        "lib\\forge-std\\src\\console2.sol",
+        "lib/solmate/src/test/utils/mocks/MockERC20.sol",
+        "lib/solmate/src/tokens/ERC1155.sol",
+        "lib\\solmate\\src\\tokens\\ERC20.sol",
+        "lib/solmate/src/utils/FixedPointMathLib.sol",
+        "lib/solmate/src/utils/ReentrancyGuard.sol",
+        "lib/solmate/src/utils/SafeTransferLib.sol",
+        "src\\Helios.sol",
+        "src\\interfaces\\IHelios.sol",
+        "src\\swappers\\XYKswapper.sol",
+        "src\\utils\\Multicall.sol"
       ],
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "HeliosTest": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "Helios.t.sol/HeliosTest.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "Helios.t.sol\\HeliosTest.json"
         }
       }
     },
-    "/Users/shiv/Projects/Helios/src/utils/Multicall.sol": {
-      "lastModificationDate": 1651405521115,
-      "contentHash": "9ecbae3587b066b16feda9ff81a9cb8a",
-      "sourceName": "src/utils/Multicall.sol",
+    "C:\\Users\\rossc\\Helios\\src\\utils\\Multicall.sol": {
+      "lastModificationDate": 1651401622263,
+      "contentHash": "5d7b951f20086c49a598a89d9b23c11c",
+      "sourceName": "src\\utils\\Multicall.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
           },
           "outputSelection": {
             "*": {
@@ -645,44 +609,7 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {
         "Multicall": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "Multicall.sol/Multicall.json"
-        }
-      }
-    },
-    "/Users/shiv/Projects/Helios/src/utils/ReentrancyGuard.sol": {
-      "lastModificationDate": 1651405521116,
-      "contentHash": "b9e6780dd0f56cd5d5ed929a687fc381",
-      "sourceName": "src/utils/ReentrancyGuard.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs"
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "ReentrancyGuard": {
-          "0.8.13+commit.abaa5c0e.Darwin.appleclang": "ReentrancyGuard.sol/ReentrancyGuard.json"
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "Multicall.sol\\Multicall.json"
         }
       }
     }
