@@ -1,0 +1,479 @@
+{
+  "_format": "ethers-rs-sol-cache-2",
+  "files": {
+    "C:\\Users\\rossc\\Helios\\lib\\forge-std\\lib\\ds-test\\src/test.sol": {
+      "lastModificationDate": 1651403070576,
+      "contentHash": "2c9806925f5d78ba4f4fb0570611cca3",
+      "sourceName": "lib\\forge-std\\lib\\ds-test\\src/test.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.5.0",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\Contract.sol": {
+      "lastModificationDate": 1651401898148,
+      "contentHash": "06f2ae5d0b8d24e78c123c3364d518f8",
+      "sourceName": "src\\Contract.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": "=0.8.10",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\Helios.sol": {
+      "lastModificationDate": 1651401622247,
+      "contentHash": "d56a5b12ec6a4dedf72002889374238c",
+      "sourceName": "src\\Helios.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "src\\HeliosERC1155.sol",
+        "src\\interfaces\\IPair.sol",
+        "src\\libraries\\SafeTransferLib.sol",
+        "src\\utils\\Multicall.sol"
+      ],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\HeliosERC1155.sol": {
+      "lastModificationDate": 1651401622247,
+      "contentHash": "87b255b962f85a14fafc1fc84dfcdf73",
+      "sourceName": "src\\HeliosERC1155.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\interfaces\\IHelios.sol": {
+      "lastModificationDate": 1651401622247,
+      "contentHash": "9560cb43e5566ef6368a390c0edb2896",
+      "sourceName": "src\\interfaces\\IHelios.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\interfaces\\IPair.sol": {
+      "lastModificationDate": 1651401622247,
+      "contentHash": "5fd9a9185bc59f851fcaf64f07f2a461",
+      "sourceName": "src\\interfaces\\IPair.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\libraries\\SafeTransferLib.sol": {
+      "lastModificationDate": 1651401622247,
+      "contentHash": "d5e5040f6154172f940c8c499b74718a",
+      "sourceName": "src\\libraries\\SafeTransferLib.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\libraries\\math\\SqrtMath.sol": {
+      "lastModificationDate": 1651401622247,
+      "contentHash": "649d4998a78e71e78cb773fd3072b7c8",
+      "sourceName": "src\\libraries\\math\\SqrtMath.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\migration\\HeliosMigrator.sol": {
+      "lastModificationDate": 1651401622247,
+      "contentHash": "0c1c5f62b5e00f583c6379601ffe6092",
+      "sourceName": "src\\migration\\HeliosMigrator.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "src\\libraries\\SafeTransferLib.sol"
+      ],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\mocks\\ERC20.sol": {
+      "lastModificationDate": 1651401622247,
+      "contentHash": "743099c1c18337d3f6d8b9da35b9f9bf",
+      "sourceName": "src\\mocks\\ERC20.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\swappers\\XYKswapper.sol": {
+      "lastModificationDate": 1651401622263,
+      "contentHash": "34eefa84a8d42de8fa4aeecdb2fd9e45",
+      "sourceName": "src\\swappers\\XYKswapper.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "src\\interfaces\\IHelios.sol",
+        "src\\libraries\\math\\SqrtMath.sol",
+        "src\\utils\\ReentrancyGuard.sol"
+      ],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\test\\Contract.t.sol": {
+      "lastModificationDate": 1651403242043,
+      "contentHash": "873e6232090a6fdc6d20736f5b399201",
+      "sourceName": "src\\test\\Contract.t.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "lib\\forge-std\\lib\\ds-test\\src/test.sol"
+      ],
+      "versionRequirement": "=0.8.13",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\test\\Helios.t.sol": {
+      "lastModificationDate": 1651403670860,
+      "contentHash": "2d80f1a79fff38dfd44431bd1cb2e5ec",
+      "sourceName": "src\\test\\Helios.t.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "lib\\forge-std\\lib\\ds-test\\src/test.sol",
+        "src\\Helios.sol",
+        "src\\HeliosERC1155.sol",
+        "src\\interfaces\\IPair.sol",
+        "src\\libraries\\SafeTransferLib.sol",
+        "src\\utils\\Multicall.sol"
+      ],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {
+        "HeliosTest": {
+          "0.8.13+commit.abaa5c0e.Windows.msvc": "Helios.t.sol\\HeliosTest.json"
+        }
+      }
+    },
+    "C:\\Users\\rossc\\Helios\\src\\utils\\Multicall.sol": {
+      "lastModificationDate": 1651401622263,
+      "contentHash": "5d7b951f20086c49a598a89d9b23c11c",
+      "sourceName": "src\\utils\\Multicall.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {}
+    },
+    "C:\\Users\\rossc\\Helios\\src\\utils\\ReentrancyGuard.sol": {
+      "lastModificationDate": 1651401622263,
+      "contentHash": "ea0b7a04825a3ecd5590b1448a72844e",
+      "sourceName": "src\\utils\\ReentrancyGuard.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.8.4",
+      "artifacts": {}
+    }
+  }
+}

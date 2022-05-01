@@ -1,21 +1,25 @@
 {
-  "name": "Helios",
-  "version": "0.0.1",
-  "main": "index.js",
-  "repository": "https://github.com/z0r0z/Helios",
-  "author": "Ross Campbell <rosscampbell9@gmail.com>",
-  "license": "GPL-3",
-  "private": false,
-  "dependencies": {
-    "@openzeppelin/contracts": "^4.2.0",
-    "hardhat": "^2.5.0",
-    "hardhat-gas-reporter": "^1.0.4"
+  "name": "femplate",
+  "description": "Robust Template for Foundry Projects",
+  "author": "Andreas Bigger <andreas@nascent.xyz>",
+  "license": "AGPL-3.0-only",
+  "version": "1.5.0",
+  "files": [
+      "src/**/*.sol"
+  ],
+  "repository": {
+      "type": "git",
+      "url": "git+https://github.com/abigger87/femplate.git"
   },
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.0",
-    "@nomiclabs/hardhat-waffle": "^2.0.0",
-    "chai": "^4.2.0",
-    "ethereum-waffle": "^3.0.0",
-    "ethers": "^5.0.0"
+      "prettier": "^2.3.1",
+      "prettier-plugin-solidity": "^1.0.0-beta.13"
+  },
+  "scripts": {
+      "setup": "make clean && make build",
+      "sync": "make update",
+      "test": "make test",
+      "snapshot": "make snapshot",
+      "lint": "make lint"
   }
 }
