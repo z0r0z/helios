@@ -3,10 +3,12 @@ pragma solidity >=0.8.4;
 
 import {Helios} from "../Helios.sol";
 
-import "ds-test/test.sol";
+import "@std/Test.sol";
 
-contract HeliosTest is DSTest {
+contract HeliosTest is Test {
     Helios helios;
+
+    uint256 counter;
 
     /// @dev Users
 
@@ -30,7 +32,11 @@ contract HeliosTest is DSTest {
         helios = new Helios();
     }
 
+    function testCreation() public {
+        helios = new Helios();
+    }
+
     function testXYKpairCreation() public {
-        
+        counter++;
     }
 }

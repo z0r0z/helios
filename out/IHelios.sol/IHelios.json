@@ -1,0 +1,475 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "pairs",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "token0",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "token1",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "swapper",
+              "type": "address"
+            },
+            {
+              "internalType": "uint112",
+              "name": "reserve0",
+              "type": "uint112"
+            },
+            {
+              "internalType": "uint112",
+              "name": "reserve1",
+              "type": "uint112"
+            },
+            {
+              "internalType": "uint8",
+              "name": "fee",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct IHelios.Pair",
+          "name": "pair",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "totalSupplyForId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "ast": {
+    "absolutePath": "C:\\Users\\rossc\\Helios\\src\\interfaces\\IHelios.sol",
+    "exportedSymbols": {
+      "IHelios": [
+        21789
+      ]
+    },
+    "id": 21790,
+    "license": "AGPL-3.0-only",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 21759,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.8",
+          ".4"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "43:24:20"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IHelios",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 21760,
+          "nodeType": "StructuredDocumentation",
+          "src": "71:42:20",
+          "text": "@notice Swapper interface for Helios"
+        },
+        "fullyImplemented": false,
+        "id": 21789,
+        "linearizedBaseContracts": [
+          21789
+        ],
+        "name": "IHelios",
+        "nameLocation": "123:7:20",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "IHelios.Pair",
+            "id": 21773,
+            "members": [
+              {
+                "constant": false,
+                "id": 21762,
+                "mutability": "mutable",
+                "name": "token0",
+                "nameLocation": "169:6:20",
+                "nodeType": "VariableDeclaration",
+                "scope": 21773,
+                "src": "161:14:20",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 21761,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "161:7:20",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21764,
+                "mutability": "mutable",
+                "name": "token1",
+                "nameLocation": "195:6:20",
+                "nodeType": "VariableDeclaration",
+                "scope": 21773,
+                "src": "187:14:20",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 21763,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "187:7:20",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21766,
+                "mutability": "mutable",
+                "name": "swapper",
+                "nameLocation": "221:7:20",
+                "nodeType": "VariableDeclaration",
+                "scope": 21773,
+                "src": "213:15:20",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 21765,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "213:7:20",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21768,
+                "mutability": "mutable",
+                "name": "reserve0",
+                "nameLocation": "248:8:20",
+                "nodeType": "VariableDeclaration",
+                "scope": 21773,
+                "src": "240:16:20",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint112",
+                  "typeString": "uint112"
+                },
+                "typeName": {
+                  "id": 21767,
+                  "name": "uint112",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "240:7:20",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint112",
+                    "typeString": "uint112"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21770,
+                "mutability": "mutable",
+                "name": "reserve1",
+                "nameLocation": "276:8:20",
+                "nodeType": "VariableDeclaration",
+                "scope": 21773,
+                "src": "268:16:20",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint112",
+                  "typeString": "uint112"
+                },
+                "typeName": {
+                  "id": 21769,
+                  "name": "uint112",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "268:7:20",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint112",
+                    "typeString": "uint112"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 21772,
+                "mutability": "mutable",
+                "name": "fee",
+                "nameLocation": "302:3:20",
+                "nodeType": "VariableDeclaration",
+                "scope": 21773,
+                "src": "296:9:20",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint8",
+                  "typeString": "uint8"
+                },
+                "typeName": {
+                  "id": 21771,
+                  "name": "uint8",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "296:5:20",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "Pair",
+            "nameLocation": "145:4:20",
+            "nodeType": "StructDefinition",
+            "scope": 21789,
+            "src": "138:175:20",
+            "visibility": "public"
+          },
+          {
+            "functionSelector": "b91ac788",
+            "id": 21781,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "pairs",
+            "nameLocation": "330:5:20",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 21776,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21775,
+                  "mutability": "mutable",
+                  "name": "id",
+                  "nameLocation": "344:2:20",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21781,
+                  "src": "336:10:20",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21774,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "336:7:20",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "335:12:20"
+            },
+            "returnParameters": {
+              "id": 21780,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21779,
+                  "mutability": "mutable",
+                  "name": "pair",
+                  "nameLocation": "383:4:20",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21781,
+                  "src": "371:16:20",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Pair_$21773_memory_ptr",
+                    "typeString": "struct IHelios.Pair"
+                  },
+                  "typeName": {
+                    "id": 21778,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 21777,
+                      "name": "Pair",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 21773,
+                      "src": "371:4:20"
+                    },
+                    "referencedDeclaration": 21773,
+                    "src": "371:4:20",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Pair_$21773_storage_ptr",
+                      "typeString": "struct IHelios.Pair"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "370:18:20"
+            },
+            "scope": 21789,
+            "src": "321:68:20",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "af514937",
+            "id": 21788,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "totalSupplyForId",
+            "nameLocation": "410:16:20",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 21784,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21783,
+                  "mutability": "mutable",
+                  "name": "id",
+                  "nameLocation": "435:2:20",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21788,
+                  "src": "427:10:20",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21782,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "427:7:20",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "426:12:20"
+            },
+            "returnParameters": {
+              "id": 21787,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 21786,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 21788,
+                  "src": "462:7:20",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 21785,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "462:7:20",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "461:9:20"
+            },
+            "scope": 21789,
+            "src": "401:70:20",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 21790,
+        "src": "113:361:20",
+        "usedErrors": []
+      }
+    ],
+    "src": "43:433:20"
+  }
+}

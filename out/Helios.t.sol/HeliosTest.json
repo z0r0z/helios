@@ -6,6 +6,19 @@
         {
           "indexed": false,
           "internalType": "string",
+          "name": "msg",
+          "type": "string"
+        }
+      ],
+      "name": "WARNING_Deprecated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
           "name": "",
           "type": "string"
         }
@@ -321,6 +334,118 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "give",
+          "type": "uint256"
+        }
+      ],
+      "name": "deal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "give",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "adjust",
+          "type": "bool"
+        }
+      ],
+      "name": "deal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "give",
+          "type": "uint256"
+        }
+      ],
+      "name": "deal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "what",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes",
+          "name": "args",
+          "type": "bytes"
+        }
+      ],
+      "name": "deployCode",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "what",
+          "type": "string"
+        }
+      ],
+      "name": "deployCode",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "failed",
       "outputs": [
@@ -330,6 +455,78 @@
           "type": "bool"
         }
       ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "who",
+          "type": "address"
+        }
+      ],
+      "name": "hoax",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "who",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "origin",
+          "type": "address"
+        }
+      ],
+      "name": "hoax",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "who",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "origin",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "give",
+          "type": "uint256"
+        }
+      ],
+      "name": "hoax",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "who",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "give",
+          "type": "uint256"
+        }
+      ],
+      "name": "hoax",
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -347,8 +544,113 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "time",
+          "type": "uint256"
+        }
+      ],
+      "name": "rewind",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "setUp",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "time",
+          "type": "uint256"
+        }
+      ],
+      "name": "skip",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "who",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "give",
+          "type": "uint256"
+        }
+      ],
+      "name": "startHoax",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "who",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "origin",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "give",
+          "type": "uint256"
+        }
+      ],
+      "name": "startHoax",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "who",
+          "type": "address"
+        }
+      ],
+      "name": "startHoax",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "who",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "origin",
+          "type": "address"
+        }
+      ],
+      "name": "startHoax",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "testCreation",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -359,27 +661,87 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "give",
+          "type": "uint256"
+        }
+      ],
+      "name": "tip",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "vm",
+      "outputs": [
+        {
+          "internalType": "contract Vm",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     }
   ],
   "ast": {
     "absolutePath": "C:\\Users\\rossc\\Helios\\src\\test\\Helios.t.sol",
     "exportedSymbols": {
       "DSTest": [
-        6178
+        23800
       ],
       "Helios": [
-        6946
+        43960
       ],
       "HeliosTest": [
-        3419
+        21934
+      ],
+      "StdStorage": [
+        42091
+      ],
+      "Test": [
+        41993
+      ],
+      "Vm": [
+        24001
+      ],
+      "console": [
+        32065
+      ],
+      "console2": [
+        40129
+      ],
+      "stdError": [
+        42063
+      ],
+      "stdMath": [
+        43192
+      ],
+      "stdStorage": [
+        43048
       ]
     },
-    "id": 3420,
+    "id": 21935,
     "license": "AGPL-3.0-only",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 3370,
+        "id": 21869,
         "literals": [
           "solidity",
           ">=",
@@ -387,26 +749,26 @@
           ".4"
         ],
         "nodeType": "PragmaDirective",
-        "src": "43:24:11"
+        "src": "43:24:19"
       },
       {
         "absolutePath": "C:/Users/rossc/Helios/src/Helios.sol",
         "file": "../Helios.sol",
-        "id": 3372,
+        "id": 21871,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 3420,
-        "sourceUnit": 6947,
-        "src": "71:37:11",
+        "scope": 21935,
+        "sourceUnit": 43961,
+        "src": "71:37:19",
         "symbolAliases": [
           {
             "foreign": {
-              "id": 3371,
+              "id": 21870,
               "name": "Helios",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 6946,
-              "src": "79:6:11",
+              "referencedDeclaration": 43960,
+              "src": "79:6:19",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -415,14 +777,14 @@
         "unitAlias": ""
       },
       {
-        "absolutePath": "C:/Users/rossc/Helios/lib/forge-std/lib/ds-test/src/test.sol",
-        "file": "ds-test/test.sol",
-        "id": 3373,
+        "absolutePath": "C:/Users/rossc/Helios/lib/forge-std/src/Test.sol",
+        "file": "@std/Test.sol",
+        "id": 21872,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 3420,
-        "sourceUnit": 6179,
-        "src": "112:26:11",
+        "scope": 21935,
+        "sourceUnit": 43193,
+        "src": "112:23:19",
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -431,61 +793,62 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 3374,
-              "name": "DSTest",
+              "id": 21873,
+              "name": "Test",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 6178,
-              "src": "165:6:11"
+              "referencedDeclaration": 41993,
+              "src": "162:4:19"
             },
-            "id": 3375,
+            "id": 21874,
             "nodeType": "InheritanceSpecifier",
-            "src": "165:6:11"
+            "src": "162:4:19"
           }
         ],
         "canonicalName": "HeliosTest",
         "contractDependencies": [
-          6946
+          43960
         ],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 3419,
+        "id": 21934,
         "linearizedBaseContracts": [
-          3419,
-          6178
+          21934,
+          41993,
+          23800
         ],
         "name": "HeliosTest",
-        "nameLocation": "151:10:11",
+        "nameLocation": "148:10:19",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 3378,
+            "id": 21877,
             "mutability": "mutable",
             "name": "helios",
-            "nameLocation": "186:6:11",
+            "nameLocation": "181:6:19",
             "nodeType": "VariableDeclaration",
-            "scope": 3419,
-            "src": "179:13:11",
+            "scope": 21934,
+            "src": "174:13:19",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_contract$_Helios_$6946",
+              "typeIdentifier": "t_contract$_Helios_$43960",
               "typeString": "contract Helios"
             },
             "typeName": {
-              "id": 3377,
+              "id": 21876,
               "nodeType": "UserDefinedTypeName",
               "pathNode": {
-                "id": 3376,
+                "id": 21875,
                 "name": "Helios",
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 6946,
-                "src": "179:6:11"
+                "referencedDeclaration": 43960,
+                "src": "174:6:19"
               },
-              "referencedDeclaration": 6946,
-              "src": "179:6:11",
+              "referencedDeclaration": 43960,
+              "src": "174:6:19",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_Helios_$6946",
+                "typeIdentifier": "t_contract$_Helios_$43960",
                 "typeString": "contract Helios"
               }
             },
@@ -493,19 +856,13 @@
           },
           {
             "constant": false,
-            "documentation": {
-              "id": 3379,
-              "nodeType": "StructuredDocumentation",
-              "src": "201:16:11",
-              "text": "@dev Users"
-            },
-            "id": 3382,
-            "mutability": "immutable",
-            "name": "alicesPk",
-            "nameLocation": "241:8:11",
+            "id": 21879,
+            "mutability": "mutable",
+            "name": "counter",
+            "nameLocation": "204:7:19",
             "nodeType": "VariableDeclaration",
-            "scope": 3419,
-            "src": "223:104:11",
+            "scope": 21934,
+            "src": "196:15:19",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -513,10 +870,43 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 3380,
+              "id": 21878,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "223:7:11",
+              "src": "196:7:19",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "documentation": {
+              "id": 21880,
+              "nodeType": "StructuredDocumentation",
+              "src": "220:16:19",
+              "text": "@dev Users"
+            },
+            "id": 21883,
+            "mutability": "immutable",
+            "name": "alicesPk",
+            "nameLocation": "260:8:19",
+            "nodeType": "VariableDeclaration",
+            "scope": 21934,
+            "src": "242:104:19",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 21881,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "242:7:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -524,14 +914,14 @@
             },
             "value": {
               "hexValue": "307836306239313963383266306234373931613562376336613732373539373061636531373438373539656264616134303736643765656564396462636666336333",
-              "id": 3381,
+              "id": 21882,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "261:66:11",
+              "src": "280:66:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_43749078111579895431833779799516339276589827175606108694784615844789984687043_by_1",
                 "typeString": "int_const 4374...(69 digits omitted)...7043"
@@ -543,13 +933,13 @@
           {
             "constant": false,
             "functionSelector": "fb47e3a2",
-            "id": 3385,
+            "id": 21886,
             "mutability": "immutable",
             "name": "alice",
-            "nameLocation": "359:5:11",
+            "nameLocation": "378:5:19",
             "nodeType": "VariableDeclaration",
-            "scope": 3419,
-            "src": "334:75:11",
+            "scope": 21934,
+            "src": "353:75:19",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -557,10 +947,10 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 3383,
+              "id": 21884,
               "name": "address",
               "nodeType": "ElementaryTypeName",
-              "src": "334:7:11",
+              "src": "353:7:19",
               "stateMutability": "nonpayable",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
@@ -569,14 +959,14 @@
             },
             "value": {
               "hexValue": "307835303334303835363443353062343332303835323966614566396264663937393463303135643532",
-              "id": 3384,
+              "id": 21885,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "367:42:11",
+              "src": "386:42:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
                 "typeString": "address"
@@ -587,13 +977,13 @@
           },
           {
             "constant": false,
-            "id": 3388,
+            "id": 21889,
             "mutability": "immutable",
             "name": "bobsPk",
-            "nameLocation": "436:6:11",
+            "nameLocation": "455:6:19",
             "nodeType": "VariableDeclaration",
-            "scope": 3419,
-            "src": "418:102:11",
+            "scope": 21934,
+            "src": "437:102:19",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -601,10 +991,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 3386,
+              "id": 21887,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "418:7:11",
+              "src": "437:7:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -612,14 +1002,14 @@
             },
             "value": {
               "hexValue": "307866386638613266343363383337366363623038373133303530363064376232376230353534643263633732626363663431623237303536303834353266333135",
-              "id": 3387,
+              "id": 21888,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "454:66:11",
+              "src": "473:66:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_112612889188223089164322846106333497020645518262799935528047458345719983960853_by_1",
                 "typeString": "int_const 1126...(70 digits omitted)...0853"
@@ -631,13 +1021,13 @@
           {
             "constant": false,
             "functionSelector": "c09cec77",
-            "id": 3391,
+            "id": 21892,
             "mutability": "immutable",
             "name": "bob",
-            "nameLocation": "552:3:11",
+            "nameLocation": "571:3:19",
             "nodeType": "VariableDeclaration",
-            "scope": 3419,
-            "src": "527:73:11",
+            "scope": 21934,
+            "src": "546:73:19",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -645,10 +1035,10 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 3389,
+              "id": 21890,
               "name": "address",
               "nodeType": "ElementaryTypeName",
-              "src": "527:7:11",
+              "src": "546:7:19",
               "stateMutability": "nonpayable",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
@@ -657,14 +1047,14 @@
             },
             "value": {
               "hexValue": "307830303164334631656638323735353241653131313430323742443345434631663038366241304639",
-              "id": 3390,
+              "id": 21891,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "558:42:11",
+              "src": "577:42:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
                 "typeString": "address"
@@ -675,13 +1065,13 @@
           },
           {
             "constant": false,
-            "id": 3394,
+            "id": 21895,
             "mutability": "immutable",
             "name": "charliesPk",
-            "nameLocation": "627:10:11",
+            "nameLocation": "646:10:19",
             "nodeType": "VariableDeclaration",
-            "scope": 3419,
-            "src": "609:106:11",
+            "scope": 21934,
+            "src": "628:106:19",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -689,10 +1079,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 3392,
+              "id": 21893,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "609:7:11",
+              "src": "628:7:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -700,14 +1090,14 @@
             },
             "value": {
               "hexValue": "307862396465653235323261616534643231313336626134343166393736393530353230616466393437396133633062646130613838666663383134393564656433",
-              "id": 3393,
+              "id": 21894,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "649:66:11",
+              "src": "668:66:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_84071679046169904184173713276486942966444905539645040619014265699867584487123_by_1",
                 "typeString": "int_const 8407...(69 digits omitted)...7123"
@@ -719,13 +1109,13 @@
           {
             "constant": false,
             "functionSelector": "f2f91da6",
-            "id": 3397,
+            "id": 21898,
             "mutability": "immutable",
             "name": "charlie",
-            "nameLocation": "747:7:11",
+            "nameLocation": "766:7:19",
             "nodeType": "VariableDeclaration",
-            "scope": 3419,
-            "src": "722:77:11",
+            "scope": 21934,
+            "src": "741:77:19",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -733,10 +1123,10 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 3395,
+              "id": 21896,
               "name": "address",
               "nodeType": "ElementaryTypeName",
-              "src": "722:7:11",
+              "src": "741:7:19",
               "stateMutability": "nonpayable",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
@@ -745,14 +1135,14 @@
             },
             "value": {
               "hexValue": "307863636334413543654165344438384361663832324233353543303246393736394662366664346664",
-              "id": 3396,
+              "id": 21897,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "757:42:11",
+              "src": "776:42:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
                 "typeString": "address"
@@ -763,13 +1153,13 @@
           },
           {
             "constant": false,
-            "id": 3400,
+            "id": 21901,
             "mutability": "immutable",
             "name": "nullPk",
-            "nameLocation": "826:6:11",
+            "nameLocation": "845:6:19",
             "nodeType": "VariableDeclaration",
-            "scope": 3419,
-            "src": "808:102:11",
+            "scope": 21934,
+            "src": "827:102:19",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -777,10 +1167,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 3398,
+              "id": 21899,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "808:7:11",
+              "src": "827:7:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -788,14 +1178,14 @@
             },
             "value": {
               "hexValue": "307838623265643230663363633364643438323833303931303336356366613135376537353638623963336661353364396564643366656264363130383662396265",
-              "id": 3399,
+              "id": 21900,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "844:66:11",
+              "src": "863:66:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_62954210695585171122235243240011824926174723943757649786612758473140198619582_by_1",
                 "typeString": "int_const 6295...(69 digits omitted)...9582"
@@ -807,13 +1197,13 @@
           {
             "constant": false,
             "functionSelector": "ec5ab2cb",
-            "id": 3403,
+            "id": 21904,
             "mutability": "immutable",
             "name": "nully",
-            "nameLocation": "942:5:11",
+            "nameLocation": "961:5:19",
             "nodeType": "VariableDeclaration",
-            "scope": 3419,
-            "src": "917:75:11",
+            "scope": 21934,
+            "src": "936:75:19",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -821,10 +1211,10 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 3401,
+              "id": 21902,
               "name": "address",
               "nodeType": "ElementaryTypeName",
-              "src": "917:7:11",
+              "src": "936:7:19",
               "stateMutability": "nonpayable",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
@@ -833,14 +1223,14 @@
             },
             "value": {
               "hexValue": "307830414344663261433833394237666634636435463136653838344232313533453930323235336632",
-              "id": 3402,
+              "id": 21903,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "950:42:11",
+              "src": "969:42:19",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
                 "typeString": "address"
@@ -851,26 +1241,26 @@
           },
           {
             "body": {
-              "id": 3413,
+              "id": 21914,
               "nodeType": "Block",
-              "src": "1025:40:11",
+              "src": "1044:40:19",
               "statements": [
                 {
                   "expression": {
-                    "id": 3411,
+                    "id": 21912,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 3406,
+                      "id": 21907,
                       "name": "helios",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 3378,
-                      "src": "1036:6:11",
+                      "referencedDeclaration": 21877,
+                      "src": "1055:6:19",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_Helios_$6946",
+                        "typeIdentifier": "t_contract$_Helios_$43960",
                         "typeString": "contract Helios"
                       }
                     },
@@ -880,36 +1270,36 @@
                       "arguments": [],
                       "expression": {
                         "argumentTypes": [],
-                        "id": 3409,
+                        "id": 21910,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "nodeType": "NewExpression",
-                        "src": "1045:10:11",
+                        "src": "1064:10:19",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_function_creation_nonpayable$__$returns$_t_contract$_Helios_$6946_$",
+                          "typeIdentifier": "t_function_creation_nonpayable$__$returns$_t_contract$_Helios_$43960_$",
                           "typeString": "function () returns (contract Helios)"
                         },
                         "typeName": {
-                          "id": 3408,
+                          "id": 21909,
                           "nodeType": "UserDefinedTypeName",
                           "pathNode": {
-                            "id": 3407,
+                            "id": 21908,
                             "name": "Helios",
                             "nodeType": "IdentifierPath",
-                            "referencedDeclaration": 6946,
-                            "src": "1049:6:11"
+                            "referencedDeclaration": 43960,
+                            "src": "1068:6:19"
                           },
-                          "referencedDeclaration": 6946,
-                          "src": "1049:6:11",
+                          "referencedDeclaration": 43960,
+                          "src": "1068:6:19",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_contract$_Helios_$6946",
+                            "typeIdentifier": "t_contract$_Helios_$43960",
                             "typeString": "contract Helios"
                           }
                         }
                       },
-                      "id": 3410,
+                      "id": 21911,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -917,90 +1307,236 @@
                       "lValueRequested": false,
                       "names": [],
                       "nodeType": "FunctionCall",
-                      "src": "1045:12:11",
+                      "src": "1064:12:19",
                       "tryCall": false,
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_Helios_$6946",
+                        "typeIdentifier": "t_contract$_Helios_$43960",
                         "typeString": "contract Helios"
                       }
                     },
-                    "src": "1036:21:11",
+                    "src": "1055:21:19",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_Helios_$6946",
+                      "typeIdentifier": "t_contract$_Helios_$43960",
                       "typeString": "contract Helios"
                     }
                   },
-                  "id": 3412,
+                  "id": 21913,
                   "nodeType": "ExpressionStatement",
-                  "src": "1036:21:11"
+                  "src": "1055:21:19"
                 }
               ]
             },
             "functionSelector": "0a9254e4",
-            "id": 3414,
+            "id": 21915,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "setUp",
-            "nameLocation": "1010:5:11",
+            "nameLocation": "1029:5:19",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 3404,
+              "id": 21905,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1015:2:11"
+              "src": "1034:2:19"
             },
             "returnParameters": {
-              "id": 3405,
+              "id": 21906,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1025:0:11"
+              "src": "1044:0:19"
             },
-            "scope": 3419,
-            "src": "1001:64:11",
+            "scope": 21934,
+            "src": "1020:64:19",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           },
           {
             "body": {
-              "id": 3417,
+              "id": 21925,
               "nodeType": "Block",
-              "src": "1111:18:11",
-              "statements": []
+              "src": "1123:40:19",
+              "statements": [
+                {
+                  "expression": {
+                    "id": 21923,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 21918,
+                      "name": "helios",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 21877,
+                      "src": "1134:6:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_Helios_$43960",
+                        "typeString": "contract Helios"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "arguments": [],
+                      "expression": {
+                        "argumentTypes": [],
+                        "id": 21921,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "nodeType": "NewExpression",
+                        "src": "1143:10:19",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_creation_nonpayable$__$returns$_t_contract$_Helios_$43960_$",
+                          "typeString": "function () returns (contract Helios)"
+                        },
+                        "typeName": {
+                          "id": 21920,
+                          "nodeType": "UserDefinedTypeName",
+                          "pathNode": {
+                            "id": 21919,
+                            "name": "Helios",
+                            "nodeType": "IdentifierPath",
+                            "referencedDeclaration": 43960,
+                            "src": "1147:6:19"
+                          },
+                          "referencedDeclaration": 43960,
+                          "src": "1147:6:19",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_contract$_Helios_$43960",
+                            "typeString": "contract Helios"
+                          }
+                        }
+                      },
+                      "id": 21922,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1143:12:19",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_Helios_$43960",
+                        "typeString": "contract Helios"
+                      }
+                    },
+                    "src": "1134:21:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_Helios_$43960",
+                      "typeString": "contract Helios"
+                    }
+                  },
+                  "id": 21924,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1134:21:19"
+                }
+              ]
+            },
+            "functionSelector": "6e6e1d46",
+            "id": 21926,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "testCreation",
+            "nameLocation": "1101:12:19",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 21916,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1113:2:19"
+            },
+            "returnParameters": {
+              "id": 21917,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1123:0:19"
+            },
+            "scope": 21934,
+            "src": "1092:71:19",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 21932,
+              "nodeType": "Block",
+              "src": "1209:28:19",
+              "statements": [
+                {
+                  "expression": {
+                    "id": 21930,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "++",
+                    "prefix": false,
+                    "src": "1220:9:19",
+                    "subExpression": {
+                      "id": 21929,
+                      "name": "counter",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 21879,
+                      "src": "1220:7:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 21931,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1220:9:19"
+                }
+              ]
             },
             "functionSelector": "706f1914",
-            "id": 3418,
+            "id": 21933,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "testXYKpairCreation",
-            "nameLocation": "1082:19:11",
+            "nameLocation": "1180:19:19",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 3415,
+              "id": 21927,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1101:2:11"
+              "src": "1199:2:19"
             },
             "returnParameters": {
-              "id": 3416,
+              "id": 21928,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1111:0:11"
+              "src": "1209:0:19"
             },
-            "scope": 3419,
-            "src": "1073:56:11",
+            "scope": 21934,
+            "src": "1171:66:19",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           }
         ],
-        "scope": 3420,
-        "src": "142:990:11",
+        "scope": 21935,
+        "src": "139:1101:19",
         "usedErrors": []
       }
     ],
-    "src": "43:1089:11"
+    "src": "43:1197:19"
   }
 }
