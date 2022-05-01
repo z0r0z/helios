@@ -342,41 +342,9 @@
       "versionRequirement": ">=0.8.4",
       "artifacts": {}
     },
-    "C:\\Users\\rossc\\Helios\\src\\test\\Contract.t.sol": {
-      "lastModificationDate": 1651403242043,
-      "contentHash": "873e6232090a6fdc6d20736f5b399201",
-      "sourceName": "src\\test\\Contract.t.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [
-        "lib\\forge-std\\lib\\ds-test\\src/test.sol"
-      ],
-      "versionRequirement": "=0.8.13",
-      "artifacts": {}
-    },
     "C:\\Users\\rossc\\Helios\\src\\test\\Helios.t.sol": {
-      "lastModificationDate": 1651403670860,
-      "contentHash": "2d80f1a79fff38dfd44431bd1cb2e5ec",
+      "lastModificationDate": 1651403891612,
+      "contentHash": "15ea3462f0d21a517aab92092e1bfc75",
       "sourceName": "src\\test\\Helios.t.sol",
       "solcConfig": {
         "settings": {
