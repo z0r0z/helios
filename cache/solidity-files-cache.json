@@ -378,8 +378,8 @@
       "artifacts": {}
     },
     "C:\\Users\\rossc\\Helios\\src\\Helios.sol": {
-      "lastModificationDate": 1651415777935,
-      "contentHash": "fc606af6e2e98bc1c584d4126f1917b8",
+      "lastModificationDate": 1651475103468,
+      "contentHash": "682f59367c22abaa366c32484631d702",
       "sourceName": "src\\Helios.sol",
       "solcConfig": {
         "settings": {
@@ -414,43 +414,6 @@
       "artifacts": {
         "Helios": {
           "0.8.13+commit.abaa5c0e.Windows.msvc": "Helios.sol\\Helios.json"
-        }
-      }
-    },
-    "C:\\Users\\rossc\\Helios\\src\\HeliosERC1155.sol": {
-      "lastModificationDate": 1651401622247,
-      "contentHash": "87b255b962f85a14fafc1fc84dfcdf73",
-      "sourceName": "src\\HeliosERC1155.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ]
-            }
-          },
-          "evmVersion": "london"
-        }
-      },
-      "imports": [],
-      "versionRequirement": ">=0.8.4",
-      "artifacts": {
-        "ERC1155TokenReceiver": {
-          "0.8.13+commit.abaa5c0e.Windows.msvc": "HeliosERC1155.sol\\ERC1155TokenReceiver.json"
-        },
-        "HeliosERC1155": {
-          "0.8.13+commit.abaa5c0e.Windows.msvc": "HeliosERC1155.sol\\HeliosERC1155.json"
         }
       }
     },
@@ -492,7 +455,7 @@
       }
     },
     "C:\\Users\\rossc\\Helios\\src\\swappers\\XYKswapper.sol": {
-      "lastModificationDate": 1651415364870,
+      "lastModificationDate": 1651475118480,
       "contentHash": "77f902dd6f7692b8dcb82b61fc9a2ca5",
       "sourceName": "src\\swappers\\XYKswapper.sol",
       "solcConfig": {
@@ -530,8 +493,8 @@
       }
     },
     "C:\\Users\\rossc\\Helios\\src\\test\\Helios.t.sol": {
-      "lastModificationDate": 1651416763065,
-      "contentHash": "fb3f977ae39c57be669a8e9238d333e8",
+      "lastModificationDate": 1651475124530,
+      "contentHash": "cfe68a9a88e82b8fcac860ca4eac567f",
       "sourceName": "src\\test\\Helios.t.sol",
       "solcConfig": {
         "settings": {

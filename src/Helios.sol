@@ -124,12 +124,12 @@ contract Helios is SolmateERC1155, Multicall {
         // swapper dictates output LP
         liq = swapper.addLiquidity(id, token0amount, token1amount);
 
-        _mint(
-            to,
-            id,
-            liq,
-            data
-        );
+        //_mint(
+        //    to,
+        //    id,
+        //    liq,
+        //    data
+        //);
 
         totalSupplyForId[id] = liq;
 
