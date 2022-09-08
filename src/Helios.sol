@@ -276,4 +276,72 @@ contract Helios is SolmateERC1155, Multicall {
 
         emit Swapped(to, id, tokenIn, amountIn, amountOut);
     }
+
+    /// @notice Update reserves of Helios LP
+    /// @param to The recipient, only used for logging events
+    /// @param id The Helios LP id in 1155 tracking
+    /// @param tokenIn The asset to swap from
+    /// @param amountIn The amount of asset to swap
+    /// @return tokenOut The asset to swap to
+    /// @return amountOut The Helios output from swap
+    function _updateReserves(address to, uint256 id, ERC20 tokenIn, uint256 amountIn)
+        internal
+        returns (ERC20 tokenOut, uint256 amountOut)
+    {
+        require(id <= totalSupply, "Helios: PAIR_DOESNT_EXIST");
+
+        Pair storage pair = pairs[id];
+
+        require(tokenIn == pair.token0 || tokenIn == pair.token1, "Helios: NOT_PAIR_TOKEN");
+
+        // swapper dictates output amount
+        amountOut = pair.swapper.swap(id, address(tokenIn), amountIn);
+
+        if (tokenIn == pair.token1) {
+            tokenOut = pair.token0;
+            pair.reserve0 -= uint112(amountOut);
+            pair.reserve1 += uint112(amountIn);
+        } else {
+            tokenOut = pair.token1;
+            pair.reserve0 += uint112(amountIn);
+            pair.reserve1 -= uint112(amountOut);
+        }
+
+        emit Swapped(to, id, tokenIn, amountIn, amountOut);
+    }
+
+    /// @notice Swap against Helios LP
+    /// @param to The recipient of Helios output
+    /// @param ids Array of Helios LP ids in 1155 tracking
+    /// @param tokenIn The asset to swap from
+    /// @param amountIn The amount of asset to swap
+    /// @return amountOut The Helios output from swap
+    function swap(address to, uint256[] calldata ids, ERC20 tokenIn, uint256 amountIn)
+        external
+        payable
+        returns (uint256 amountOut)
+    {
+        if (address(tokenIn) == address(0)) {
+            amountIn = msg.value;
+        } else {
+            tokenIn.safeTransferFrom(msg.sender, address(this), amountIn);
+        }
+
+        uint256 len = ids.length;
+        //These will be overwritten by the loop
+        amountOut = amountIn;
+        ERC20 tokenOut = tokenIn;
+        for (uint256 i = 0; i < len;) {
+            (tokenOut, amountOut) = _updateReserves(to, ids[i], tokenOut, amountOut);
+            unchecked {
+                ++i;
+            }
+        }
+
+        if (address(tokenOut) == address(0)) {
+            to.safeTransferETH(amountOut);
+        } else {
+            tokenOut.safeTransfer(to, amountOut);
+        }
+    }
 }
