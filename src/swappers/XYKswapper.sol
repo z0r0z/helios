@@ -96,6 +96,7 @@ contract XYKswapper is ReentrancyGuard {
         uint256 fee
     ) private pure returns (uint256 amountOut) {
         uint256 amountInWithFee = amountIn * (10000 - fee);
-        amountOut = (amountInWithFee * reserveAmountOut) / (reserveAmountIn * 10000 + amountInWithFee);
+        uint256 newReserveIn = reserveAmountIn * 10000 + amountInWithFee;
+        amountOut = (amountInWithFee * reserveAmountOut + (newReserveIn >> 1)) / newReserveIn;
     }
 }
