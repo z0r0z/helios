@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-interface ERC20 {}
-
-/// @notice Swapper interface for Helios
+/// @notice Interface for Helios.
 interface IHelios {
     struct Pair {
-        ERC20 token0;
-        ERC20 token1;
+        address token0;
+        address token1;
         IHelios swapper;
         uint112 reserve0;
         uint112 reserve1;

@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import {FixedPointMathLib} from "@solbase/utils/FixedPointMathLib.sol";
 import {ReentrancyGuard} from "@solbase/utils/ReentrancyGuard.sol";
-import {ERC20, IHelios} from "../interfaces/IHelios.sol";
+import {IHelios} from "../interfaces/IHelios.sol";
 
 /// @notice XYK swapper for Helios.
 /// @author Modified from UniswapV2Pair (https://github.com/Uniswap/v2-core/blob/master/contracts/UniswapV2Pair.sol)
@@ -18,14 +18,15 @@ contract XYKswapper is ReentrancyGuard {
     /// Constants
     /// -----------------------------------------------------------------------
 
-    uint224 private constant Q112 = 2**112;
-    uint256 private constant MIN_LP = 10**3;
+    uint224 internal constant Q112 = 2**112;
+
+    uint256 internal constant MIN_LP = 10**3;
 
     /// -----------------------------------------------------------------------
     /// Math
     /// -----------------------------------------------------------------------
 
-    function min(uint256 x, uint256 y) private pure returns (uint256 z) {
+    function min(uint256 x, uint256 y) internal pure returns (uint256 z) {
         z = x < y ? x : y;
     }
 
@@ -41,6 +42,7 @@ contract XYKswapper is ReentrancyGuard {
         IHelios.Pair memory pair = IHelios(msg.sender).pairs(id);
 
         uint256 reserve0 = pair.reserve0;
+
         uint256 reserve1 = pair.reserve1;
 
         uint256 totalSupply = IHelios(msg.sender).totalSupplyForId(id);
@@ -65,11 +67,13 @@ contract XYKswapper is ReentrancyGuard {
         IHelios.Pair memory pair = IHelios(msg.sender).pairs(id);
 
         uint256 reserve0 = pair.reserve0;
+
         uint256 reserve1 = pair.reserve1;
 
         uint256 totalSupply = IHelios(msg.sender).totalSupplyForId(id);
 
         amount0out = (lp * reserve0) / totalSupply;
+
         amount1out = (lp * reserve1) / totalSupply;
 
         require(
@@ -84,12 +88,13 @@ contract XYKswapper is ReentrancyGuard {
 
     function swap(
         uint256 id,
-        ERC20 tokenIn,
+        address tokenIn,
         uint256 amountIn
     ) external nonReentrant returns (uint256 amountOut) {
         IHelios.Pair memory pair = IHelios(msg.sender).pairs(id);
 
         uint256 reserve0 = pair.reserve0;
+
         uint256 reserve1 = pair.reserve1;
 
         uint256 fee = pair.fee;
@@ -98,6 +103,7 @@ contract XYKswapper is ReentrancyGuard {
             amountOut = _getAmountOut(amountIn, reserve0, reserve1, fee);
         } else {
             require(tokenIn == pair.token1, "XYKswapper: INVALID_INPUT_TOKEN");
+
             amountOut = _getAmountOut(amountIn, reserve1, reserve0, fee);
         }
     }
@@ -107,9 +113,11 @@ contract XYKswapper is ReentrancyGuard {
         uint256 reserveAmountIn,
         uint256 reserveAmountOut,
         uint256 fee
-    ) private pure returns (uint256 amountOut) {
+    ) internal pure returns (uint256 amountOut) {
         uint256 amountInWithFee = amountIn * (10000 - fee);
+
         uint256 newReserveIn = reserveAmountIn * 10000 + amountInWithFee;
+
         amountOut =
             (amountInWithFee * reserveAmountOut + (newReserveIn >> 1)) /
             newReserveIn;

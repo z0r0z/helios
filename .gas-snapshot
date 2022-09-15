@@ -1,4 +1,4 @@
-HeliosTest:testHeliosCreation() (gas: 2862619)
+HeliosTest:testHeliosCreation() (gas: 2862816)
 HeliosTest:testXYKpairCreation() (gas: 233762)
 HeliosTest:testXYKpairMultiHop(uint256) (runs: 256, μ: 56713, ~: 22944)
 HeliosTest:testXYKpairNoFeeInvariance(uint256) (runs: 256, μ: 74197, ~: 7765)

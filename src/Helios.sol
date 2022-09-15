@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {ERC1155, ERC1155TokenReceiver} from "@solbase/tokens/ERC1155.sol";
 import {IHelios} from "./interfaces/IHelios.sol";
 import {OwnedThreeStep} from "@solbase/auth/OwnedThreeStep.sol";
 import {SafeTransferLib} from "@solbase/utils/SafeTransferLib.sol";
 import {SafeMulticallable} from "@solbase/utils/SafeMulticallable.sol";
+import {ERC1155, ERC1155TokenReceiver} from "@solbase/tokens/ERC1155.sol";
 
 /// @notice ERC1155 vault with router and liquidity pools.
 /// @author z0r0z.eth (SolDAO)
 contract Helios is
-    ERC1155,
-    ERC1155TokenReceiver,
     OwnedThreeStep(tx.origin),
-    SafeMulticallable
+    SafeMulticallable,
+    ERC1155,
+    ERC1155TokenReceiver
 {
     constructor() payable {} // Clean deployment.
 
