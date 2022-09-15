@@ -1,13 +1,12 @@
-// SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
-import {FixedPointMathLib} from '@solmate/utils/FixedPointMathLib.sol';
-import {ReentrancyGuard} from '@solmate/utils/ReentrancyGuard.sol';
+import {FixedPointMathLib} from '@solbase/utils/FixedPointMathLib.sol';
+import {ReentrancyGuard} from '@solbase/utils/ReentrancyGuard.sol';
 import {ERC20, IHelios} from '../interfaces/IHelios.sol';
 
-/// @notice XYK swapper for Helios
+/// @notice XYK swapper for Helios.
 /// @author Modified from UniswapV2Pair (https://github.com/Uniswap/v2-core/blob/master/contracts/UniswapV2Pair.sol)
-/// License-Identifier: GPL-3.0
 contract XYKswapper is ReentrancyGuard {
     /// -----------------------------------------------------------------------
     /// Library Usage
