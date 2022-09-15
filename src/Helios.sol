@@ -1,23 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {
-    ERC1155, 
-    ERC1155TokenReceiver
-} from "@solbase/tokens/ERC1155.sol";
+import {ERC1155, ERC1155TokenReceiver} from "@solbase/tokens/ERC1155.sol";
 import {IHelios} from "./interfaces/IHelios.sol";
-import {Multicallable} from "@solbase/utils/Multicallable.sol";
 import {OwnedThreeStep} from "@solbase/auth/OwnedThreeStep.sol";
 import {SafeTransferLib} from "@solbase/utils/SafeTransferLib.sol";
+import {SafeMulticallable} from "@solbase/utils/SafeMulticallable.sol";
 
 /// @notice ERC1155 vault with router and liquidity pools.
 /// @author z0r0z.eth (SolDAO)
-contract Helios is 
+contract Helios is
     ERC1155,
-    ERC1155TokenReceiver, 
-    Multicallable, 
-    OwnedThreeStep(tx.origin) 
-{ constructor() payable {} // Clean deployment.
+    ERC1155TokenReceiver,
+    OwnedThreeStep(tx.origin),
+    SafeMulticallable
+{
+    constructor() payable {} // Clean deployment.
+
     /// -----------------------------------------------------------------------
     /// Library Usage
     /// -----------------------------------------------------------------------
@@ -28,14 +27,35 @@ contract Helios is
     /// Events
     /// -----------------------------------------------------------------------
 
-    event CreatePair(address indexed to, uint256 id, address indexed token0, address indexed token1);
+    event CreatePair(
+        address indexed to,
+        uint256 id,
+        address indexed token0,
+        address indexed token1
+    );
 
-    event AddLiquidity(address indexed to, uint256 id, uint256 token0amount, uint256 token1amount);
+    event AddLiquidity(
+        address indexed to,
+        uint256 id,
+        uint256 token0amount,
+        uint256 token1amount
+    );
 
-    event RemoveLiquidity(address indexed from, uint256 id, uint256 amount0out, uint256 amount1out);
+    event RemoveLiquidity(
+        address indexed from,
+        uint256 id,
+        uint256 amount0out,
+        uint256 amount1out
+    );
 
-    event Swap(address indexed to, uint256 id, address indexed tokenIn, uint256 amountIn, uint256 amountOut);
-    
+    event Swap(
+        address indexed to,
+        uint256 id,
+        address indexed tokenIn,
+        uint256 amountIn,
+        uint256 amountOut
+    );
+
     event SetURIfetcher(ERC1155 indexed uriFetcher);
 
     /// -----------------------------------------------------------------------
@@ -43,9 +63,9 @@ contract Helios is
     /// -----------------------------------------------------------------------
 
     ERC1155 internal uriFetcher;
-    
+
     string public constant name = "Helios";
-    
+
     string public constant symbol = "HELI";
 
     function uri(uint256 id) public view override returns (string memory) {
@@ -72,7 +92,8 @@ contract Helios is
     mapping(uint256 => Pair) public pairs;
 
     /// @dev Internal mapping to check Helios LP settings.
-    mapping(address => mapping(address => mapping(IHelios => mapping(uint256 => uint256)))) internal pairSettings;
+    mapping(address => mapping(address => mapping(IHelios => mapping(uint256 => uint256))))
+        internal pairSettings;
 
     struct Pair {
         address token0; // First pair token.
@@ -113,11 +134,24 @@ contract Helios is
         require(address(swapper).code.length != 0, "Helios: INVALID_SWAPPER");
 
         // Sort tokens and amounts.
-        (address token0, uint112 token0amount, address token1, uint112 token1amount) = 
-            tokenA < tokenB ? (tokenA, uint112(tokenAamount), tokenB, uint112(tokenBamount)) : 
-                (tokenB, uint112(tokenBamount), tokenA, uint112(tokenAamount));
+        (
+            address token0,
+            uint112 token0amount,
+            address token1,
+            uint112 token1amount
+        ) = tokenA < tokenB
+                ? (tokenA, uint112(tokenAamount), tokenB, uint112(tokenBamount))
+                : (
+                    tokenB,
+                    uint112(tokenBamount),
+                    tokenA,
+                    uint112(tokenAamount)
+                );
 
-        require(pairSettings[token0][token1][swapper][fee] == 0, "Helios: PAIR_EXISTS");
+        require(
+            pairSettings[token0][token1][swapper][fee] == 0,
+            "Helios: PAIR_EXISTS"
+        );
 
         // If null included or `msg.value`, assume native token pairing.
         if (address(token0) == address(0) || msg.value != 0) {
@@ -139,7 +173,7 @@ contract Helios is
         unchecked {
             id = ++totalSupply;
         }
-        
+
         pairSettings[token0][token1][swapper][fee] = id;
 
         pairs[id] = Pair({
@@ -154,12 +188,7 @@ contract Helios is
         // Swapper dictates output LP.
         liq = swapper.addLiquidity(id, token0amount, token1amount);
 
-        _mint(
-            to,
-            id,
-            liq,
-            data
-        );
+        _mint(to, id, liq, data);
 
         totalSupplyForId[id] = liq;
 
@@ -177,7 +206,7 @@ contract Helios is
     /// @return liq The liquidity output from swapper.
     function addLiquidity(
         address to,
-        uint256 id, 
+        uint256 id,
         uint256 token0amount,
         uint256 token1amount,
         bytes calldata data
@@ -190,24 +219,31 @@ contract Helios is
         if (pair.token0 == address(0)) {
             token0amount = msg.value;
 
-            pair.token1.safeTransferFrom(msg.sender, address(this), token1amount);
-        } else { 
-            pair.token0.safeTransferFrom(msg.sender, address(this), token0amount);
+            pair.token1.safeTransferFrom(
+                msg.sender,
+                address(this),
+                token1amount
+            );
+        } else {
+            pair.token0.safeTransferFrom(
+                msg.sender,
+                address(this),
+                token0amount
+            );
 
-            pair.token1.safeTransferFrom(msg.sender, address(this), token1amount);
+            pair.token1.safeTransferFrom(
+                msg.sender,
+                address(this),
+                token1amount
+            );
         }
 
         // Swapper dictates output LP.
         liq = pair.swapper.addLiquidity(id, token0amount, token1amount);
-        
+
         require(liq != 0, "Helios: INSUFFICIENT_LIQUIDITY_MINTED");
-        
-        _mint(
-            to,
-            id,
-            liq,
-            data
-        );
+
+        _mint(to, id, liq, data);
 
         pair.reserve0 += uint112(token0amount);
 
@@ -225,17 +261,17 @@ contract Helios is
     /// @return amount0out The value output for token0.
     /// @return amount1out The value output for token1.
     function removeLiquidity(
-        address to, 
-        uint256 id, 
+        address to,
+        uint256 id,
         uint256 liq
     ) external payable returns (uint256 amount0out, uint256 amount1out) {
         require(id <= totalSupply, "Helios: PAIR_DOESNT_EXIST");
 
         Pair storage pair = pairs[id];
-        
+
         // Swapper dictates output amounts.
         (amount0out, amount1out) = pair.swapper.removeLiquidity(id, liq);
-        
+
         // If base is address(0), assume native token.
         if (pair.token0 == address(0)) {
             to.safeTransferETH(amount0out);
@@ -244,17 +280,13 @@ contract Helios is
         }
 
         pair.token1.safeTransfer(to, amount1out);
-        
-        _burn(
-            msg.sender,
-            id,
-            liq
-        );
+
+        _burn(msg.sender, id, liq);
 
         pair.reserve0 -= uint112(amount0out);
 
         pair.reserve1 -= uint112(amount1out);
-        
+
         // Underflow is checked in {ERC1155} by `balanceOf()` decrement.
         unchecked {
             totalSupplyForId[id] -= liq;
@@ -274,17 +306,20 @@ contract Helios is
     /// @param amountIn The amount of asset to swap.
     /// @return amountOut The Helios output from swap.
     function swap(
-        address to, 
-        uint256 id, 
-        address tokenIn, 
+        address to,
+        uint256 id,
+        address tokenIn,
         uint256 amountIn
     ) external payable returns (uint256 amountOut) {
         require(id <= totalSupply, "Helios: PAIR_DOESNT_EXIST");
 
         Pair storage pair = pairs[id];
 
-        require(tokenIn == pair.token0 || tokenIn == pair.token1, "Helios: NOT_PAIR_TOKEN");
-        
+        require(
+            tokenIn == pair.token0 || tokenIn == pair.token1,
+            "Helios: NOT_PAIR_TOKEN"
+        );
+
         // If `tokenIn` is address(0), assume native token.
         if (tokenIn == address(0)) {
             amountIn = msg.value;
@@ -324,19 +359,19 @@ contract Helios is
     /// @return tokenOut The asset to swap to.
     /// @return amountOut The Helios output from swap.
     function _updateReserves(
-        address to, 
-        uint256 id, 
-        address tokenIn, 
+        address to,
+        uint256 id,
+        address tokenIn,
         uint256 amountIn
-    )
-        internal
-        returns (address tokenOut, uint256 amountOut)
-    {
+    ) internal returns (address tokenOut, uint256 amountOut) {
         require(id <= totalSupply, "Helios: PAIR_DOESNT_EXIST");
 
         Pair storage pair = pairs[id];
 
-        require(tokenIn == pair.token0 || tokenIn == pair.token1, "Helios: NOT_PAIR_TOKEN");
+        require(
+            tokenIn == pair.token0 || tokenIn == pair.token1,
+            "Helios: NOT_PAIR_TOKEN"
+        );
 
         // Swapper dictates output amount.
         amountOut = pair.swapper.swap(id, address(tokenIn), amountIn);
@@ -365,15 +400,11 @@ contract Helios is
     /// @param amountIn The amount of asset to swap.
     /// @return amountOut The Helios output from swap.
     function swap(
-        address to, 
-        uint256[] calldata ids, 
-        address tokenIn, 
+        address to,
+        uint256[] calldata ids,
+        address tokenIn,
         uint256 amountIn
-    )
-        external
-        payable
-        returns (uint256 amountOut)
-    {
+    ) external payable returns (uint256 amountOut) {
         if (address(tokenIn) == address(0)) {
             amountIn = msg.value;
         } else {
@@ -388,7 +419,12 @@ contract Helios is
         address tokenOut = tokenIn;
 
         for (uint256 i; i < len; ) {
-            (tokenOut, amountOut) = _updateReserves(to, ids[i], tokenOut, amountOut);
+            (tokenOut, amountOut) = _updateReserves(
+                to,
+                ids[i],
+                tokenOut,
+                amountOut
+            );
 
             // Unchecked because the only math done is incrementing
             // the array index counter which cannot possibly overflow.
