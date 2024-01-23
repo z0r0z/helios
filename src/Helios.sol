@@ -1,442 +1,217 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: AGPL-3.0-only
+pragma solidity ^0.8.19;
 
-import {IHelios} from "./interfaces/IHelios.sol";
-import {OwnedThreeStep} from "@solbase/auth/OwnedThreeStep.sol";
-import {SafeTransferLib} from "@solbase/utils/SafeTransferLib.sol";
-import {SafeMulticallable} from "@solbase/utils/SafeMulticallable.sol";
-import {ERC1155, ERC1155TokenReceiver} from "@solbase/tokens/ERC1155.sol";
+import {ERC6909} from "./utils/ERC6909.sol";
+import {Math2} from "./libraries/Math2.sol";
+import {ReentrancyGuard} from "./utils/ReentrancyGuard.sol";
+import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
 
-/// @notice ERC1155 vault with router and liquidity pools.
-/// @author z0r0z.eth (SolDAO)
-contract Helios is
-    OwnedThreeStep(tx.origin),
-    SafeMulticallable,
-    ERC1155,
-    ERC1155TokenReceiver
-{
-    constructor() payable {} // Clean deployment.
-
-    /// -----------------------------------------------------------------------
-    /// Library Usage
-    /// -----------------------------------------------------------------------
-
+/// @dev Simple XYK Exchange for ERC20s.
+/// LP shares are tokenized using ERC6909.
+contract Helios is ERC6909, ReentrancyGuard {
+    using Math2 for uint224;
     using SafeTransferLib for address;
 
-    /// -----------------------------------------------------------------------
-    /// Events
-    /// -----------------------------------------------------------------------
+    uint256 internal constant MINIMUM_LIQUIDITY = 1000;
+    bytes4 internal constant SELECTOR = bytes4(keccak256(bytes("transfer(address,uint256)")));
 
-    event CreatePair(
-        address indexed to,
-        uint256 id,
-        address indexed token0,
-        address indexed token1
-    );
+    mapping(uint256 => Pool) public pools;
+    mapping(uint256 => Price) public prices;
 
-    event AddLiquidity(
-        address indexed to,
-        uint256 id,
-        uint256 token0amount,
-        uint256 token1amount
-    );
-
-    event RemoveLiquidity(
-        address indexed from,
-        uint256 id,
-        uint256 amount0out,
-        uint256 amount1out
-    );
-
-    event Swap(
-        address indexed to,
-        uint256 id,
-        address indexed tokenIn,
-        uint256 amountIn,
-        uint256 amountOut
-    );
-
-    event SetURIfetcher(ERC1155 indexed uriFetcher);
-
-    /// -----------------------------------------------------------------------
-    /// Metadata/URI Logic
-    /// -----------------------------------------------------------------------
-
-    ERC1155 internal uriFetcher;
-
-    string public constant name = "Helios";
-
-    string public constant symbol = "HELI";
-
-    function uri(uint256 id) public view override returns (string memory) {
-        return uriFetcher.uri(id);
+    struct Pool {
+        address token0;
+        address token1;
+        uint112 reserve0;
+        uint112 reserve1;
+        uint32 blockTimestampLast;
     }
 
-    function setURIfetcher(ERC1155 _uriFetcher) public payable onlyOwner {
-        uriFetcher = _uriFetcher;
-
-        emit SetURIfetcher(_uriFetcher);
+    struct Price {
+        uint256 price0CumulativeLast;
+        uint256 price1CumulativeLast;
+        uint256 kLast;
     }
 
-    /// -----------------------------------------------------------------------
-    /// LP Storage
-    /// -----------------------------------------------------------------------
+    constructor() payable {}
 
-    /// @dev Tracks new LP ids.
-    uint256 public totalSupply;
+    /// @dev Update reserves and, on the first call per block, price accumulators.
+    function _update(
+        uint256 id,
+        uint256 balance0,
+        uint256 balance1,
+        uint112 _reserve0,
+        uint112 _reserve1
+    ) internal virtual {
+        Pool storage pool = pools[id];
+        Price storage price = prices[id];
 
-    /// @dev Tracks LP amount per id.
-    mapping(uint256 => uint256) public totalSupplyForId;
-
-    /// @dev Maps Helios LP to settings.
-    mapping(uint256 => Pair) public pairs;
-
-    /// @dev Internal mapping to check Helios LP settings.
-    mapping(address => mapping(address => mapping(IHelios => mapping(uint256 => uint256))))
-        internal pairSettings;
-
-    struct Pair {
-        address token0; // First pair token.
-        address token1; // Second pair token.
-        IHelios swapper; // Pair output target.
-        uint112 reserve0; // First pair token reserve.
-        uint112 reserve1; // Second pair token reserve.
-        uint8 fee; // Fee back to pair liquidity providers.
-    }
-
-    /// -----------------------------------------------------------------------
-    /// LP Logic
-    /// -----------------------------------------------------------------------
-
-    /// @notice Create new Helios LP.
-    /// @param to The recipient of Helios liquidity.
-    /// @param tokenA The first asset in Helios LP (will be sorted).
-    /// @param tokenB The second asset in Helios LP (will be sorted).
-    /// @param tokenAamount The value deposited for tokenA.
-    /// @param tokenBamount The value deposited for tokenB.
-    /// @param swapper The contract that provides swapping logic for LP.
-    /// @param fee The designated LP fee.
-    /// @param data Bytecode provided for recipient of Helios liquidity.
-    /// @return id The Helios LP id in 1155 tracking.
-    /// @return liq The liquidity output from swapper.
-    function createPair(
-        address to,
-        address tokenA,
-        address tokenB,
-        uint256 tokenAamount,
-        uint256 tokenBamount,
-        IHelios swapper,
-        uint8 fee,
-        bytes calldata data
-    ) external payable returns (uint256 id, uint256 liq) {
-        require(tokenA != tokenB, "Helios: IDENTICAL_ADDRESSES");
-
-        require(address(swapper).code.length != 0, "Helios: INVALID_SWAPPER");
-
-        // Sort tokens and amounts.
-        (
-            address token0,
-            uint112 token0amount,
-            address token1,
-            uint112 token1amount
-        ) = tokenA < tokenB
-                ? (tokenA, uint112(tokenAamount), tokenB, uint112(tokenBamount))
-                : (
-                    tokenB,
-                    uint112(tokenBamount),
-                    tokenA,
-                    uint112(tokenAamount)
-                );
-
-        require(
-            pairSettings[token0][token1][swapper][fee] == 0,
-            "Helios: PAIR_EXISTS"
-        );
-
-        // If null included or `msg.value`, assume native token pairing.
-        if (address(token0) == address(0) || msg.value != 0) {
-            // Overwrite token0 with null if not so.
-            if (token0 != address(0)) token0 = address(0);
-
-            // Overwrite token0amount with value.
-            token0amount = uint112(msg.value);
-
-            token1.safeTransferFrom(msg.sender, address(this), token1amount);
-        } else {
-            token0.safeTransferFrom(msg.sender, address(this), token0amount);
-
-            token1.safeTransferFrom(msg.sender, address(this), token1amount);
-        }
-
-        // Unchecked because the only math done is incrementing
-        // `totalSupply()` which cannot realistically overflow.
+        require(balance0 <= type(uint112).max && balance1 <= type(uint112).max, "Helios: OVERFLOW");
+        uint32 blockTimestamp = uint32(block.timestamp % 2 ** 32);
         unchecked {
-            id = ++totalSupply;
-        }
-
-        pairSettings[token0][token1][swapper][fee] = id;
-
-        pairs[id] = Pair({
-            token0: token0,
-            token1: token1,
-            swapper: swapper,
-            reserve0: token0amount,
-            reserve1: token1amount,
-            fee: fee
-        });
-
-        // Swapper dictates output LP.
-        liq = swapper.addLiquidity(id, token0amount, token1amount);
-
-        _mint(to, id, liq, data);
-
-        totalSupplyForId[id] = liq;
-
-        emit CreatePair(to, id, token0, token1);
-
-        emit AddLiquidity(to, id, token0amount, token1amount);
-    }
-
-    /// @notice Add liquidity to Helios LP.
-    /// @param to The recipient of Helios liquidity.
-    /// @param id The Helios LP id in 1155 tracking.
-    /// @param token0amount The asset amount deposited for token0.
-    /// @param token1amount The asset amount deposited for token1.
-    /// @param data Bytecode provided for recipient of Helios liquidity.
-    /// @return liq The liquidity output from swapper.
-    function addLiquidity(
-        address to,
-        uint256 id,
-        uint256 token0amount,
-        uint256 token1amount,
-        bytes calldata data
-    ) external payable returns (uint256 liq) {
-        require(id <= totalSupply, "Helios: PAIR_DOESNT_EXIST");
-
-        Pair storage pair = pairs[id];
-
-        // If base is address(0), assume native token and overwrite amount.
-        if (pair.token0 == address(0)) {
-            token0amount = msg.value;
-
-            pair.token1.safeTransferFrom(
-                msg.sender,
-                address(this),
-                token1amount
-            );
-        } else {
-            pair.token0.safeTransferFrom(
-                msg.sender,
-                address(this),
-                token0amount
-            );
-
-            pair.token1.safeTransferFrom(
-                msg.sender,
-                address(this),
-                token1amount
-            );
-        }
-
-        // Swapper dictates output LP.
-        liq = pair.swapper.addLiquidity(id, token0amount, token1amount);
-
-        require(liq != 0, "Helios: INSUFFICIENT_LIQUIDITY_MINTED");
-
-        _mint(to, id, liq, data);
-
-        pair.reserve0 += uint112(token0amount);
-
-        pair.reserve1 += uint112(token1amount);
-
-        totalSupplyForId[id] += liq;
-
-        emit AddLiquidity(to, id, token0amount, token1amount);
-    }
-
-    /// @notice Remove liquidity from Helios LP.
-    /// @param to The recipient of Helios outputs.
-    /// @param id The Helios LP id in 1155 tracking.
-    /// @param liq The liquidity amount to burn.
-    /// @return amount0out The value output for token0.
-    /// @return amount1out The value output for token1.
-    function removeLiquidity(
-        address to,
-        uint256 id,
-        uint256 liq
-    ) external payable returns (uint256 amount0out, uint256 amount1out) {
-        require(id <= totalSupply, "Helios: PAIR_DOESNT_EXIST");
-
-        Pair storage pair = pairs[id];
-
-        // Swapper dictates output amounts.
-        (amount0out, amount1out) = pair.swapper.removeLiquidity(id, liq);
-
-        // If base is address(0), assume native token.
-        if (pair.token0 == address(0)) {
-            to.safeTransferETH(amount0out);
-        } else {
-            pair.token0.safeTransfer(to, amount0out);
-        }
-
-        pair.token1.safeTransfer(to, amount1out);
-
-        _burn(msg.sender, id, liq);
-
-        pair.reserve0 -= uint112(amount0out);
-
-        pair.reserve1 -= uint112(amount1out);
-
-        // Underflow is checked in {ERC1155} by `balanceOf()` decrement.
-        unchecked {
-            totalSupplyForId[id] -= liq;
-        }
-
-        emit RemoveLiquidity(to, id, amount0out, amount1out);
-    }
-
-    /// -----------------------------------------------------------------------
-    /// Swap Logic
-    /// -----------------------------------------------------------------------
-
-    /// @notice Swap against Helios LP.
-    /// @param to The recipient of Helios output.
-    /// @param id The Helios LP id in 1155 tracking.
-    /// @param tokenIn The asset to swap from.
-    /// @param amountIn The amount of asset to swap.
-    /// @return amountOut The Helios output from swap.
-    function swap(
-        address to,
-        uint256 id,
-        address tokenIn,
-        uint256 amountIn
-    ) external payable returns (uint256 amountOut) {
-        require(id <= totalSupply, "Helios: PAIR_DOESNT_EXIST");
-
-        Pair storage pair = pairs[id];
-
-        require(
-            tokenIn == pair.token0 || tokenIn == pair.token1,
-            "Helios: NOT_PAIR_TOKEN"
-        );
-
-        // If `tokenIn` is address(0), assume native token.
-        if (tokenIn == address(0)) {
-            amountIn = msg.value;
-        } else {
-            tokenIn.safeTransferFrom(msg.sender, address(this), amountIn);
-        }
-
-        // Swapper dictates output amount.
-        amountOut = pair.swapper.swap(id, address(tokenIn), amountIn);
-
-        if (tokenIn == pair.token1) {
-            if (address(pair.token0) == address(0)) {
-                to.safeTransferETH(amountOut);
-            } else {
-                pair.token0.safeTransfer(to, amountOut);
-            }
-
-            pair.reserve0 -= uint112(amountOut);
-
-            pair.reserve1 += uint112(amountIn);
-        } else {
-            pair.token1.safeTransfer(to, amountOut);
-
-            pair.reserve0 += uint112(amountIn);
-
-            pair.reserve1 -= uint112(amountOut);
-        }
-
-        emit Swap(to, id, tokenIn, amountIn, amountOut);
-    }
-
-    /// @notice Update reserves of Helios LP.
-    /// @param to The recipient, only used for logging events.
-    /// @param id The Helios LP id in 1155 tracking.
-    /// @param tokenIn The asset to swap from.
-    /// @param amountIn The amount of asset to swap.
-    /// @return tokenOut The asset to swap to.
-    /// @return amountOut The Helios output from swap.
-    function _updateReserves(
-        address to,
-        uint256 id,
-        address tokenIn,
-        uint256 amountIn
-    ) internal returns (address tokenOut, uint256 amountOut) {
-        require(id <= totalSupply, "Helios: PAIR_DOESNT_EXIST");
-
-        Pair storage pair = pairs[id];
-
-        require(
-            tokenIn == pair.token0 || tokenIn == pair.token1,
-            "Helios: NOT_PAIR_TOKEN"
-        );
-
-        // Swapper dictates output amount.
-        amountOut = pair.swapper.swap(id, address(tokenIn), amountIn);
-
-        if (tokenIn == pair.token1) {
-            tokenOut = pair.token0;
-
-            pair.reserve0 -= uint112(amountOut);
-
-            pair.reserve1 += uint112(amountIn);
-        } else {
-            tokenOut = pair.token1;
-
-            pair.reserve0 += uint112(amountIn);
-
-            pair.reserve1 -= uint112(amountOut);
-        }
-
-        emit Swap(to, id, tokenIn, amountIn, amountOut);
-    }
-
-    /// @notice Swap against Helios LP.
-    /// @param to The recipient of Helios output.
-    /// @param ids Array of Helios LP ids in 1155 tracking.
-    /// @param tokenIn The asset to swap from.
-    /// @param amountIn The amount of asset to swap.
-    /// @return amountOut The Helios output from swap.
-    function swap(
-        address to,
-        uint256[] calldata ids,
-        address tokenIn,
-        uint256 amountIn
-    ) external payable returns (uint256 amountOut) {
-        if (address(tokenIn) == address(0)) {
-            amountIn = msg.value;
-        } else {
-            tokenIn.safeTransferFrom(msg.sender, address(this), amountIn);
-        }
-
-        uint256 len = ids.length;
-
-        // These will be overwritten by the loop.
-        amountOut = amountIn;
-
-        address tokenOut = tokenIn;
-
-        for (uint256 i; i < len; ) {
-            (tokenOut, amountOut) = _updateReserves(
-                to,
-                ids[i],
-                tokenOut,
-                amountOut
-            );
-
-            // Unchecked because the only math done is incrementing
-            // the array index counter which cannot possibly overflow.
-            unchecked {
-                ++i;
+            uint32 timeElapsed = blockTimestamp - pool.blockTimestampLast; // Overflow is desired.
+            if (timeElapsed != 0 && _reserve0 != 0 && _reserve1 != 0) {
+                // * Never overflows, and + overflow is desired.
+                price.price0CumulativeLast +=
+                    uint256(Math2.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
+                price.price1CumulativeLast +=
+                    uint256(Math2.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed;
             }
         }
+        pool.reserve0 = uint112(balance0);
+        pool.reserve1 = uint112(balance1);
+        pool.blockTimestampLast = blockTimestamp;
+    }
 
-        if (tokenOut == address(0)) {
-            to.safeTransferETH(amountOut);
-        } else {
-            tokenOut.safeTransfer(to, amountOut);
+    function _feeTo() public view virtual returns (address) {}
+
+    /// @dev If fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k).
+    function _mintFee(uint256 id, uint112 _reserve0, uint112 _reserve1)
+        internal
+        virtual
+        returns (bool feeOn)
+    {
+        Price storage price = prices[id];
+        address feeTo = _feeTo();
+        feeOn = feeTo != address(0);
+        if (feeOn) {
+            if (price.kLast != 0) {
+                uint256 rootK = Math2.sqrt(uint256(_reserve0) * (_reserve1));
+                uint256 rootKLast = Math2.sqrt(price.kLast);
+                if (rootK > rootKLast) {
+                    uint256 numerator = totalSupply[id] * (rootK - rootKLast);
+                    uint256 denominator = rootK * 5 + rootKLast;
+                    uint256 liquidity = numerator / denominator;
+                    if (liquidity != 0) _mint(feeTo, id, liquidity);
+                }
+            }
+        } else if (price.kLast != 0) {
+            price.kLast = 0;
         }
     }
+
+    /// @dev This low-level function should be called from a contract which performs important safety checks.
+    function mint(uint256 id, address to) public payable nonReentrant returns (uint256 liquidity) {
+        Pool storage pool = pools[id];
+
+        uint112 _reserve0 = pool.reserve0;
+        uint112 _reserve1 = pool.reserve1;
+
+        uint256 balance0 = pool.token0.balanceOf(address(this));
+        uint256 balance1 = pool.token1.balanceOf(address(this));
+
+        uint256 amount0 = balance0 - _reserve0;
+        uint256 amount1 = balance1 - _reserve1;
+
+        bool feeOn = _mintFee(id, _reserve0, _reserve1);
+        uint256 _totalSupply = totalSupply[id]; // Gas savings, must be defined here since totalSupply can update in _mintFee.
+        if (_totalSupply == 0) {
+            liquidity = Math2.sqrt((amount0 * amount1) - (MINIMUM_LIQUIDITY));
+            _mint(address(0), id, MINIMUM_LIQUIDITY); // Permanently lock the first MINIMUM_LIQUIDITY tokens.
+        } else {
+            liquidity =
+                Math2.min(amount0 * _totalSupply / _reserve0, (amount1 * _totalSupply) / _reserve1);
+        }
+        require(liquidity != 0, "Helios: INSUFFICIENT_LIQUIDITY_MINTED");
+        _mint(to, id, liquidity);
+        _update(id, balance0, balance1, _reserve0, _reserve1);
+        if (feeOn) prices[id].kLast = uint256(pool.reserve0) * (pool.reserve1); // Reserve0 and reserve1 are up-to-date.
+    }
+
+    /// @dev This low-level function should be called from a contract which performs important safety checks.
+    function burn(uint256 id, address to)
+        public
+        payable
+        nonReentrant
+        returns (uint256 amount0, uint256 amount1)
+    {
+        Pool storage pool = pools[id];
+
+        uint256 balance0 = pool.token0.balanceOf(address(this));
+        uint256 balance1 = pool.token1.balanceOf(address(this));
+
+        uint256 liquidity;
+
+        bool feeOn = _mintFee(id, pool.reserve0, pool.reserve1);
+        uint256 _totalSupply = totalSupply[id]; // Gas savings, must be defined here since totalSupply can update in _mintFee.
+        amount0 = liquidity * balance0 / _totalSupply; // Using balances ensures pro-rata distribution.
+        amount1 = liquidity * balance1 / _totalSupply; // Using balances ensures pro-rata distribution.
+        require(amount0 != 0 && amount1 != 0, "Helios: INSUFFICIENT_LIQUIDITY_BURNED");
+        _burn(address(this), liquidity, 0);
+        pool.token0.safeTransfer(to, amount0);
+        pool.token1.safeTransfer(to, amount1);
+        balance0 = pool.token0.balanceOf(address(this));
+        balance1 = pool.token1.balanceOf(address(this));
+        _update(id, balance0, balance1, pool.reserve0, pool.reserve1);
+        if (feeOn) prices[id].kLast = uint256(pool.reserve0) * (pool.reserve1); // Reserve0 and reserve1 are up-to-date.
+    }
+
+    /// @dev This low-level function should be called from a contract which performs important safety checks.
+    function swap(
+        uint256 id,
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address to,
+        bytes calldata data
+    ) public payable nonReentrant {
+        Pool storage pool = pools[id];
+
+        require(to != pool.token0 && to != pool.token1, "Helios: INVALID_TO");
+        require(amount0Out != 0 || amount1Out != 0, "Helios: INSUFFICIENT_OUTPUT_AMOUNT");
+        require(
+            amount0Out < pool.reserve0 && amount1Out < pool.reserve1,
+            "Helios: INSUFFICIENT_LIQUIDITY"
+        );
+
+        if (amount0Out != 0) pool.token0.safeTransfer(to, amount0Out); // Optimistically transfer tokens.
+        if (amount1Out != 0) pool.token1.safeTransfer(to, amount1Out); // Optimistically transfer tokens.
+        if (data.length != 0) {
+            ICall(to).call(msg.sender, amount0Out, amount1Out, data);
+        }
+        uint256 balance0 = pool.token0.balanceOf(address(this));
+        uint256 balance1 = pool.token1.balanceOf(address(this));
+
+        uint256 amount0In =
+            balance0 > pool.reserve0 - amount0Out ? balance0 - (pool.reserve0 - amount0Out) : 0;
+        uint256 amount1In =
+            balance1 > pool.reserve1 - amount1Out ? balance1 - (pool.reserve1 - amount1Out) : 0;
+        require(amount0In != 0 || amount1In != 0, "Helios: INSUFFICIENT_INPUT_AMOUNT");
+
+        uint256 balance0Adjusted = balance0 * 1000 - amount0In * 3;
+        uint256 balance1Adjusted = balance1 * 1000 - amount1In * 3;
+        require(
+            balance0Adjusted * balance1Adjusted
+                >= uint256(pool.reserve0 * pool.reserve1 * 1000 ** 2),
+            "Helios: K"
+        );
+
+        _update(id, balance0, balance1, pool.reserve0, pool.reserve1);
+    }
+
+    /// @dev Force balances to match reserves.
+    function skim(uint256 id, address to) public payable nonReentrant {
+        Pool storage pool = pools[id];
+        pool.token0.safeTransfer(to, pool.token0.balanceOf(address(this)) - pool.reserve0);
+        pool.token1.safeTransfer(to, pool.token1.balanceOf(address(this)) - pool.reserve1);
+    }
+
+    /// @dev Force reserves to match balances.
+    function sync(uint256 id) public payable nonReentrant {
+        Pool storage pool = pools[id];
+        _update(
+            id,
+            pool.token0.balanceOf(address(this)),
+            pool.token1.balanceOf(address(this)),
+            pool.reserve0,
+            pool.reserve1
+        );
+    }
+}
+
+/// @dev Simple external call interface for swaps.
+/// @author Modified from Uniswap V2 (
+/// (https://github.com/Uniswap/v2-core/blob/master/contracts/interfaces/IUniswapV2Callee.sol)
+interface ICall {
+    function call(address sender, uint256 amount0, uint256 amount1, bytes calldata data)
+        external
+        payable;
 }

@@ -1,12 +1,18 @@
 [profile.default]
-solc = "0.8.17"
-bytecode_hash = "none"
-optimizer_runs = 1000000
-via_ir = true
+solc_version = "0.8.23"
+evm_version = "shanghai"
+
+optimizer = true
+optimizer_runs = 9_999_999
 
 remappings = [
-  "@solbase=lib/solbase/src/"
+  "@solady=lib/solady/",
+  "@forge=lib/forge-std/src/"
 ]
 
-[profile.intense.fuzz]
-runs = 10000
+[fmt]
+line_length = 100
+
+[rpc_endpoints]
+main = "https://rpc.ankr.com/eth"
+opti = "https://rpc.ankr.com/optimism"

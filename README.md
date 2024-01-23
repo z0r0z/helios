@@ -1,22 +1,8 @@
-# Helios
-> ERC-1155-based Exchange
+# 𖤓 Helios
+> ERC-6909 Singleton Exchange
 
-LPs are tracked under [multi-token standard](https://eips.ethereum.org/EIPS/eip-1155).
+LPs are tracked under the [minimal multi-token interface](https://eips.ethereum.org/EIPS/eip-6909).
 
-Swapping is routed from this same contract. Easy peasy.
+Swapping uses the Uniswap V2 *xyk* curve and some Sushiswap updates to the classic constant product pool.
 
-Math is handled by external helper contracts called `swapper`.
-
-Currently, pairs are supported. Can use raw ETH too.
-
-## To-do
-- [X] Core contracts
-- [X] XYK swapper
-- [ ] Concentrated swapper
-- [ ] Incentives
-
-
-
-
-
-
+Such as allowing single-sided LP. Otherwise, Helios also allows for swaps in ERC-1155 and ERC-6909 tokens.
