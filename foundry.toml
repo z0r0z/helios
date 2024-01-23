@@ -2,6 +2,8 @@
 solc_version = "0.8.23"
 evm_version = "shanghai"
 
+via_ir = true
+
 optimizer = true
 optimizer_runs = 9_999_999
 

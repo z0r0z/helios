@@ -8,10 +8,17 @@ import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
 
 /// @notice Simple xyk-style exchange for ERC20 tokens.
 /// LP shares are tokenized using the ERC6909 interface.
-/// @dev Shadow events are used fwiw.
 /// @author Modified from Uniswap V2
 /// (https://github.com/Uniswap/v2-core/blob/master/contracts/UniswapV2Pair.sol)
 contract Helios is ERC6909, ReentrancyGuard {
+    /// ========================= LIBRARIES ========================= ///
+
+    /// @dev Did the maths.
+    using Math2 for uint224;
+
+    /// @dev Safety library for ERC20.
+    using SafeTransferLib for address;
+
     /// ======================= CUSTOM ERRORS ======================= ///
 
     /// @dev Not enough liquidity minted.
@@ -38,18 +45,30 @@ contract Helios is ERC6909, ReentrancyGuard {
     /// @dev K.
     error K();
 
-    /// ========================= LIBRARIES ========================= ///
+    /// =========================== EVENTS =========================== ///
 
-    /// @dev Did the maths.
-    using Math2 for uint224;
+    /// @dev Logs swap of tokens within the ERC6909 token ID.
+    event Swap(
+        uint256 id,
+        address indexed sender,
+        uint256 amount0In,
+        uint256 amount1In,
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address indexed to
+    );
 
-    /// @dev Safety library for ERC20.
-    using SafeTransferLib for address;
+    /// @dev Logs update of reserves within the ERC6909 token ID.
+    event Sync(uint256 id, uint112 reserve0, uint112 reserve1);
 
     /// ========================= CONSTANTS ========================= ///
 
     /// @dev Minimum liquidity to start pool.
     uint256 internal constant MIN_LIQ = 1000;
+
+    /// ========================= IMMUTABLES ========================= ///
+
+    address internal immutable DAO;
 
     /// ========================== STORAGE ========================== ///
 
@@ -81,7 +100,9 @@ contract Helios is ERC6909, ReentrancyGuard {
 
     /// @dev Constructs
     /// this implementation.
-    constructor() payable {}
+    constructor() payable {
+        DAO = msg.sender;
+    }
 
     /// ======================== MINT & BURN ======================== ///
 
@@ -94,7 +115,7 @@ contract Helios is ERC6909, ReentrancyGuard {
         uint256 amount0 = balance0 - pool.reserve0;
         uint256 amount1 = balance1 - pool.reserve1;
 
-        bool feeOn = _mintFee(id, pool.reserve0, pool.reserve1);
+        _mintFee(id, pool.reserve0, pool.reserve1);
         uint256 _totalSupply = totalSupply[id]; // Gas savings, must be defined here since `totalSupply` can update in `_mintFee`.
         if (_totalSupply == 0) {
             liquidity = Math2.sqrt((amount0 * amount1) - MIN_LIQ);
@@ -108,7 +129,7 @@ contract Helios is ERC6909, ReentrancyGuard {
         _mint(to, id, liquidity);
 
         _update(id, balance0, balance1, pool.reserve0, pool.reserve1);
-        if (feeOn) prices[id].kLast = uint256(pool.reserve0) * (pool.reserve1); // `reserve0` and `reserve1` are up-to-date.
+        prices[id].kLast = uint256(pool.reserve0) * (pool.reserve1); // `reserve0` and `reserve1` are up-to-date.
     }
 
     /// @dev This low-level function should be called from a contract which performs important safety checks.
@@ -124,7 +145,7 @@ contract Helios is ERC6909, ReentrancyGuard {
         uint256 balance1 = pool.token1.balanceOf(address(this));
         uint256 liquidity = balanceOf[address(this)][id];
 
-        bool feeOn = _mintFee(id, pool.reserve0, pool.reserve1);
+        _mintFee(id, pool.reserve0, pool.reserve1);
         uint256 _totalSupply = totalSupply[id]; // Gas savings, must be defined here since totalSupply can update in `_mintFee`.
         amount0 = liquidity * balance0 / _totalSupply; // Using balances ensures pro-rata distribution.
         amount1 = liquidity * balance1 / _totalSupply; // Using balances ensures pro-rata distribution.
@@ -136,10 +157,10 @@ contract Helios is ERC6909, ReentrancyGuard {
         balance1 = pool.token1.balanceOf(address(this));
 
         _update(id, balance0, balance1, pool.reserve0, pool.reserve1);
-        if (feeOn) prices[id].kLast = uint256(pool.reserve0) * (pool.reserve1); // `reserve0` and `reserve1` are up-to-date.
+        prices[id].kLast = uint256(pool.reserve0) * (pool.reserve1); // `reserve0` and `reserve1` are up-to-date.
     }
 
-    /// ======================== SWAP ======================== ///
+    /// ============================ SWAP ============================ ///
 
     /// @dev This low-level function should be called from a contract which performs important safety checks.
     function swap(
@@ -162,6 +183,7 @@ contract Helios is ERC6909, ReentrancyGuard {
         if (data.length != 0) {
             ICall(to).call(msg.sender, amount0Out, amount1Out, data);
         }
+
         uint256 balance0 = pool.token0.balanceOf(address(this));
         uint256 balance1 = pool.token1.balanceOf(address(this));
 
@@ -178,8 +200,8 @@ contract Helios is ERC6909, ReentrancyGuard {
                     >= uint256(pool.reserve0 * pool.reserve1 * 1000 ** 2)
             )
         ) revert K();
-
         _update(id, balance0, balance1, pool.reserve0, pool.reserve1);
+        emit Swap(id, msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
     /// @dev Force balances to match reserves.
@@ -210,7 +232,7 @@ contract Helios is ERC6909, ReentrancyGuard {
         uint256 balance1,
         uint112 _reserve0,
         uint112 _reserve1
-    ) internal virtual {
+    ) internal {
         Pool storage pool = pools[id];
         Price storage price = prices[id];
 
@@ -229,33 +251,21 @@ contract Helios is ERC6909, ReentrancyGuard {
         pool.reserve0 = uint112(balance0);
         pool.reserve1 = uint112(balance1);
         pool.blockTimestampLast = blockTimestamp;
+        emit Sync(id, pool.reserve0, pool.reserve1);
     }
 
-    function _feeTo() public view virtual returns (address) {}
-
-    /// @dev If fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k).
-    function _mintFee(uint256 id, uint112 _reserve0, uint112 _reserve1)
-        internal
-        virtual
-        returns (bool feeOn)
-    {
+    /// @dev Mint liquidity equivalent to 1/6th of the growth in sqrt(k).
+    function _mintFee(uint256 id, uint112 reserve0, uint112 reserve1) internal {
         Price storage price = prices[id];
-
-        address feeTo = _feeTo();
-        feeOn = feeTo != address(0);
-        if (feeOn) {
-            if (price.kLast != 0) {
-                uint256 rootK = Math2.sqrt(uint256(_reserve0) * (_reserve1));
-                uint256 rootKLast = Math2.sqrt(price.kLast);
-                if (rootK > rootKLast) {
-                    uint256 numerator = totalSupply[id] * (rootK - rootKLast);
-                    uint256 denominator = rootK * 5 + rootKLast;
-                    uint256 liquidity = numerator / denominator;
-                    if (liquidity != 0) _mint(feeTo, id, liquidity);
-                }
+        if (price.kLast != 0) {
+            uint256 rootK = Math2.sqrt(uint256(reserve0) * reserve1);
+            uint256 rootKLast = Math2.sqrt(price.kLast);
+            if (rootK > rootKLast) {
+                uint256 numerator = totalSupply[id] * (rootK - rootKLast);
+                uint256 denominator = rootK * 5 + rootKLast;
+                uint256 liquidity = numerator / denominator;
+                if (liquidity != 0) _mint(DAO, id, liquidity);
             }
-        } else if (price.kLast != 0) {
-            price.kLast = 0;
         }
     }
 }
