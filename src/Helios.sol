@@ -8,6 +8,7 @@ import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
 
 /// @notice Simple xyk-style exchange for ERC20 tokens.
 /// LP shares are tokenized using the ERC6909 interface.
+/// @dev Shadow events are used fwiw.
 /// @author Modified from Uniswap V2
 /// (https://github.com/Uniswap/v2-core/blob/master/contracts/UniswapV2Pair.sol)
 contract Helios is ERC6909, ReentrancyGuard {
@@ -18,6 +19,18 @@ contract Helios is ERC6909, ReentrancyGuard {
 
     /// @dev Not enough liquidity burned.
     error InsufficientLiquidityBurned();
+
+    error InsufficientOutputAmount();
+
+    error InsufficientInputAmount();
+
+    error InsufficientLiquidity();
+
+    error InvalidTo();
+
+    error Overflow();
+
+    error K();
 
     /// ========================= LIBRARIES ========================= ///
 
@@ -132,12 +145,10 @@ contract Helios is ERC6909, ReentrancyGuard {
     ) public payable nonReentrant {
         Pool storage pool = pools[id];
 
-        require(to != pool.token0 && to != pool.token1, "Helios: INVALID_TO");
-        require(amount0Out != 0 || amount1Out != 0, "Helios: INSUFFICIENT_OUTPUT_AMOUNT");
-        require(
-            amount0Out < pool.reserve0 && amount1Out < pool.reserve1,
-            "Helios: INSUFFICIENT_LIQUIDITY"
-        );
+        if (!(to != pool.token0 && to != pool.token1)) revert InvalidTo();
+        if (!(amount0Out != 0 || amount1Out != 0)) revert InsufficientOutputAmount();
+        if (!(amount0Out < pool.reserve0 && amount1Out < pool.reserve1)) revert InsufficientLiquidity();
+
         if (amount0Out != 0) pool.token0.safeTransfer(to, amount0Out); // Optimistically transfer tokens.
         if (amount1Out != 0) pool.token1.safeTransfer(to, amount1Out); // Optimistically transfer tokens.
         if (data.length != 0) {
@@ -150,14 +161,10 @@ contract Helios is ERC6909, ReentrancyGuard {
             balance0 > pool.reserve0 - amount0Out ? balance0 - (pool.reserve0 - amount0Out) : 0;
         uint256 amount1In =
             balance1 > pool.reserve1 - amount1Out ? balance1 - (pool.reserve1 - amount1Out) : 0;
-        require(amount0In != 0 || amount1In != 0, "Helios: INSUFFICIENT_INPUT_AMOUNT");
+        if (!(amount0In != 0 || amount1In != 0)) revert InsufficientInputAmount();
         uint256 balance0Adjusted = balance0 * 1000 - amount0In * 3;
         uint256 balance1Adjusted = balance1 * 1000 - amount1In * 3;
-        require(
-            balance0Adjusted * balance1Adjusted
-                >= uint256(pool.reserve0 * pool.reserve1 * 1000 ** 2),
-            "Helios: K"
-        );
+        if (!(balance0Adjusted * balance1Adjusted >= uint256(pool.reserve0 * pool.reserve1 * 1000 ** 2))) revert K();
 
         _update(id, balance0, balance1, pool.reserve0, pool.reserve1);
     }
@@ -194,7 +201,7 @@ contract Helios is ERC6909, ReentrancyGuard {
         Pool storage pool = pools[id];
         Price storage price = prices[id];
 
-        require(balance0 <= type(uint112).max && balance1 <= type(uint112).max, "Helios: OVERFLOW");
+        if (!(balance0 <= type(uint112).max && balance1 <= type(uint112).max)) revert Overflow();
         uint32 blockTimestamp = uint32(block.timestamp % 2 ** 32);
         unchecked {
             uint32 timeElapsed = blockTimestamp - pool.blockTimestampLast; // Overflow is desired.
