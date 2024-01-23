@@ -62,27 +62,24 @@ contract Helios is ERC6909, ReentrancyGuard {
     function mint(uint256 id, address to) public payable nonReentrant returns (uint256 liquidity) {
         Pool storage pool = pools[id];
 
-        uint112 _reserve0 = pool.reserve0;
-        uint112 _reserve1 = pool.reserve1;
-
         uint256 balance0 = pool.token0.balanceOf(address(this));
         uint256 balance1 = pool.token1.balanceOf(address(this));
+        uint256 amount0 = balance0 - pool.reserve0;
+        uint256 amount1 = balance1 - pool.reserve1;
 
-        uint256 amount0 = balance0 - _reserve0;
-        uint256 amount1 = balance1 - _reserve1;
-
-        bool feeOn = _mintFee(id, _reserve0, _reserve1);
+        bool feeOn = _mintFee(id, pool.reserve0, pool.reserve1);
         uint256 _totalSupply = totalSupply[id]; // Gas savings, must be defined here since `totalSupply` can update in `_mintFee`.
         if (_totalSupply == 0) {
             liquidity = Math2.sqrt((amount0 * amount1) - MIN_LIQ);
             _mint(address(0), id, MIN_LIQ); // Permanently lock the first `MIN_LIQ` tokens.
         } else {
-            liquidity =
-                Math2.min(amount0 * _totalSupply / _reserve0, (amount1 * _totalSupply) / _reserve1);
+            liquidity = Math2.min(
+                (amount0 * _totalSupply) / pool.reserve0, (amount1 * _totalSupply) / pool.reserve1
+            );
         }
         require(liquidity != 0, "Helios: INSUFFICIENT_LIQUIDITY_MINTED");
         _mint(to, id, liquidity);
-        _update(id, balance0, balance1, _reserve0, _reserve1);
+        _update(id, balance0, balance1, pool.reserve0, pool.reserve1);
         if (feeOn) prices[id].kLast = uint256(pool.reserve0) * (pool.reserve1); // `reserve0` and `reserve1` are up-to-date.
     }
 
