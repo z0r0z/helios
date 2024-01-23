@@ -49,7 +49,7 @@ contract Helios is ERC6909, ReentrancyGuard {
 
     /// @dev Logs swap of tokens within the ERC6909 token ID.
     event Swap(
-        uint256 id,
+        uint256 indexed id,
         address indexed sender,
         uint256 amount0In,
         uint256 amount1In,
@@ -68,15 +68,16 @@ contract Helios is ERC6909, ReentrancyGuard {
 
     /// ========================= IMMUTABLES ========================= ///
 
+    /// @dev Helios Singleton DAO.
     address internal immutable DAO;
 
     /// ========================== STORAGE ========================== ///
 
     /// @dev Pool swapping data mapping.
-    mapping(uint256 => Pool) public pools;
+    mapping(uint256 id => Pool) public pools;
 
     /// @dev Pool cumulative price mapping.
-    mapping(uint256 => Price) public prices;
+    mapping(uint256 id => Price) public prices;
 
     /// ========================== STRUCTS ========================== ///
 
@@ -100,6 +101,7 @@ contract Helios is ERC6909, ReentrancyGuard {
 
     /// @dev Constructs
     /// this implementation.
+    /// DAO is set to caller.
     constructor() payable {
         DAO = msg.sender;
     }
@@ -240,12 +242,16 @@ contract Helios is ERC6909, ReentrancyGuard {
         uint32 blockTimestamp = uint32(block.timestamp % 2 ** 32);
         unchecked {
             uint32 timeElapsed = blockTimestamp - pool.blockTimestampLast; // Overflow is desired.
-            if (timeElapsed != 0 && _reserve0 != 0 && _reserve1 != 0) {
-                // * Never overflows, and + overflow is desired.
-                price.price0CumulativeLast +=
-                    uint256(Math2.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
-                price.price1CumulativeLast +=
-                    uint256(Math2.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed;
+            if (timeElapsed != 0) {
+                if (_reserve0 != 0) {
+                    if (_reserve1 != 0) {
+                        // * Never overflows, and + overflow is desired.
+                        price.price0CumulativeLast +=
+                            uint256(Math2.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
+                        price.price1CumulativeLast +=
+                            uint256(Math2.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed;
+                    }
+                }
             }
         }
         pool.reserve0 = uint112(balance0);
@@ -271,7 +277,7 @@ contract Helios is ERC6909, ReentrancyGuard {
 }
 
 /// @dev Simple external call interface for swaps.
-/// @author Modified from Uniswap V2 (
+/// @author Modified from Uniswap V2
 /// (https://github.com/Uniswap/v2-core/blob/master/contracts/interfaces/IUniswapV2Callee.sol)
 interface ICall {
     function call(address sender, uint256 amount0, uint256 amount1, bytes calldata data)
