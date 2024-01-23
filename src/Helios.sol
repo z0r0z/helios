@@ -3,8 +3,8 @@ pragma solidity ^0.8.19;
 
 import {Math2} from "./libraries/Math2.sol";
 import {ERC6909} from "./utils/ERC6909.sol";
-import {ReentrancyGuard} from "./utils/ReentrancyGuard.sol";
-import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
+import {ReentrancyGuard} from "lib/solady/src/utils/ReentrancyGuard.sol";
+import {SafeTransferLib} from "lib/solady/src/utils/SafeTransferLib.sol";
 
 /// @notice Simple xyk-style exchange for ERC20 tokens.
 /// LP shares are tokenized using the ERC6909 interface.
