@@ -225,7 +225,7 @@ contract Helios is ERC6909, ReentrancyGuard {
         );
     }
 
-    /// ======================== INTERNAL ======================== ///
+    /// ========================== INTERNAL ========================== ///
 
     /// @dev Update reserves and, on the first call per block, price accumulators.
     function _update(
