@@ -72,7 +72,7 @@ contract Helios is ERC6909, ReentrancyGuard {
         uint256 amount1 = balance1 - _reserve1;
 
         bool feeOn = _mintFee(id, _reserve0, _reserve1);
-        uint256 _totalSupply = totalSupply[id]; // Gas savings, must be defined here since totalSupply can update in `_mintFee`.
+        uint256 _totalSupply = totalSupply[id]; // Gas savings, must be defined here since `totalSupply` can update in `_mintFee`.
         if (_totalSupply == 0) {
             liquidity = Math2.sqrt((amount0 * amount1) - MIN_LIQ);
             _mint(address(0), id, MIN_LIQ); // Permanently lock the first `MIN_LIQ` tokens.
@@ -179,8 +179,6 @@ contract Helios is ERC6909, ReentrancyGuard {
 
     /// ======================== INTERNAL ======================== ///
 
-    function _feeTo() public view virtual returns (address) {}
-
     /// @dev Update reserves and, on the first call per block, price accumulators.
     function _update(
         uint256 id,
@@ -209,6 +207,8 @@ contract Helios is ERC6909, ReentrancyGuard {
         pool.blockTimestampLast = blockTimestamp;
     }
 
+    function _feeTo() public view virtual returns (address) {}
+
     /// @dev If fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k).
     function _mintFee(uint256 id, uint112 _reserve0, uint112 _reserve1)
         internal
@@ -231,26 +231,6 @@ contract Helios is ERC6909, ReentrancyGuard {
             }
         } else if (price.kLast != 0) {
             price.kLast = 0;
-        }
-    }
-
-    /// =================== EXTERNAL TOKEN HELPERS =================== ///
-
-    /// @dev Returns the amount of ERC20 `token` owned by `account`.
-    /// Returns zero if the `token` does not exist.
-    function _balanceOf(address token, address account) internal view returns (uint256 amount) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            mstore(0x14, account) // Store the `account` argument.
-            mstore(0x00, 0x70a08231000000000000000000000000) // `balanceOf(address)`.
-            amount :=
-                mul(
-                    mload(0x20),
-                    and( // The arguments of `and` are evaluated from right to left.
-                        gt(returndatasize(), 0x1f), // At least 32 bytes returned.
-                        staticcall(gas(), token, 0x10, 0x24, 0x20, 0x20)
-                    )
-                )
         }
     }
 }
