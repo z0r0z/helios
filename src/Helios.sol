@@ -20,16 +20,22 @@ contract Helios is ERC6909, ReentrancyGuard {
     /// @dev Not enough liquidity burned.
     error InsufficientLiquidityBurned();
 
+    /// @dev Not enough tokens sent out.
     error InsufficientOutputAmount();
 
+    /// @dev Not enough tokens sent in.
     error InsufficientInputAmount();
 
+    /// @dev Not enough liquidity.
     error InsufficientLiquidity();
 
+    /// @dev Invalid recipient.
     error InvalidTo();
 
+    /// @dev Bad math.
     error Overflow();
 
+    /// @dev K.
     error K();
 
     /// ========================= LIBRARIES ========================= ///
@@ -147,7 +153,9 @@ contract Helios is ERC6909, ReentrancyGuard {
 
         if (!(to != pool.token0 && to != pool.token1)) revert InvalidTo();
         if (!(amount0Out != 0 || amount1Out != 0)) revert InsufficientOutputAmount();
-        if (!(amount0Out < pool.reserve0 && amount1Out < pool.reserve1)) revert InsufficientLiquidity();
+        if (!(amount0Out < pool.reserve0 && amount1Out < pool.reserve1)) {
+            revert InsufficientLiquidity();
+        }
 
         if (amount0Out != 0) pool.token0.safeTransfer(to, amount0Out); // Optimistically transfer tokens.
         if (amount1Out != 0) pool.token1.safeTransfer(to, amount1Out); // Optimistically transfer tokens.
@@ -164,7 +172,12 @@ contract Helios is ERC6909, ReentrancyGuard {
         if (!(amount0In != 0 || amount1In != 0)) revert InsufficientInputAmount();
         uint256 balance0Adjusted = balance0 * 1000 - amount0In * 3;
         uint256 balance1Adjusted = balance1 * 1000 - amount1In * 3;
-        if (!(balance0Adjusted * balance1Adjusted >= uint256(pool.reserve0 * pool.reserve1 * 1000 ** 2))) revert K();
+        if (
+            !(
+                balance0Adjusted * balance1Adjusted
+                    >= uint256(pool.reserve0 * pool.reserve1 * 1000 ** 2)
+            )
+        ) revert K();
 
         _update(id, balance0, balance1, pool.reserve0, pool.reserve1);
     }
