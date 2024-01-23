@@ -11,6 +11,14 @@ import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
 /// @author Modified from Uniswap V2
 /// (https://github.com/Uniswap/v2-core/blob/master/contracts/UniswapV2Pair.sol)
 contract Helios is ERC6909, ReentrancyGuard {
+    /// ======================= CUSTOM ERRORS ======================= ///
+
+    /// @dev Not enough liquidity minted.
+    error InsufficientLiquidityMinted();
+
+    /// @dev Not enough liquidity burned.
+    error InsufficientLiquidityBurned();
+
     /// ========================= LIBRARIES ========================= ///
 
     /// @dev Did the maths.
@@ -77,8 +85,9 @@ contract Helios is ERC6909, ReentrancyGuard {
                 (amount0 * _totalSupply) / pool.reserve0, (amount1 * _totalSupply) / pool.reserve1
             );
         }
-        require(liquidity != 0, "Helios: INSUFFICIENT_LIQUIDITY_MINTED");
+        if (liquidity == 0) revert InsufficientLiquidityMinted();
         _mint(to, id, liquidity);
+
         _update(id, balance0, balance1, pool.reserve0, pool.reserve1);
         if (feeOn) prices[id].kLast = uint256(pool.reserve0) * (pool.reserve1); // `reserve0` and `reserve1` are up-to-date.
     }
@@ -94,19 +103,19 @@ contract Helios is ERC6909, ReentrancyGuard {
 
         uint256 balance0 = pool.token0.balanceOf(address(this));
         uint256 balance1 = pool.token1.balanceOf(address(this));
-
-        uint256 liquidity;
+        uint256 liquidity = balanceOf[address(this)][id];
 
         bool feeOn = _mintFee(id, pool.reserve0, pool.reserve1);
         uint256 _totalSupply = totalSupply[id]; // Gas savings, must be defined here since totalSupply can update in `_mintFee`.
         amount0 = liquidity * balance0 / _totalSupply; // Using balances ensures pro-rata distribution.
         amount1 = liquidity * balance1 / _totalSupply; // Using balances ensures pro-rata distribution.
-        require(amount0 != 0 && amount1 != 0, "Helios: INSUFFICIENT_LIQUIDITY_BURNED");
+        if (amount0 == 0 || amount1 == 0) revert InsufficientLiquidityBurned();
         _burn(address(this), liquidity, 0);
         pool.token0.safeTransfer(to, amount0);
         pool.token1.safeTransfer(to, amount1);
         balance0 = pool.token0.balanceOf(address(this));
         balance1 = pool.token1.balanceOf(address(this));
+
         _update(id, balance0, balance1, pool.reserve0, pool.reserve1);
         if (feeOn) prices[id].kLast = uint256(pool.reserve0) * (pool.reserve1); // `reserve0` and `reserve1` are up-to-date.
     }
@@ -129,7 +138,6 @@ contract Helios is ERC6909, ReentrancyGuard {
             amount0Out < pool.reserve0 && amount1Out < pool.reserve1,
             "Helios: INSUFFICIENT_LIQUIDITY"
         );
-
         if (amount0Out != 0) pool.token0.safeTransfer(to, amount0Out); // Optimistically transfer tokens.
         if (amount1Out != 0) pool.token1.safeTransfer(to, amount1Out); // Optimistically transfer tokens.
         if (data.length != 0) {
@@ -143,7 +151,6 @@ contract Helios is ERC6909, ReentrancyGuard {
         uint256 amount1In =
             balance1 > pool.reserve1 - amount1Out ? balance1 - (pool.reserve1 - amount1Out) : 0;
         require(amount0In != 0 || amount1In != 0, "Helios: INSUFFICIENT_INPUT_AMOUNT");
-
         uint256 balance0Adjusted = balance0 * 1000 - amount0In * 3;
         uint256 balance1Adjusted = balance1 * 1000 - amount1In * 3;
         require(
@@ -213,6 +220,7 @@ contract Helios is ERC6909, ReentrancyGuard {
         returns (bool feeOn)
     {
         Price storage price = prices[id];
+
         address feeTo = _feeTo();
         feeOn = feeTo != address(0);
         if (feeOn) {
