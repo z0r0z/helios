@@ -1,5 +1,5 @@
 [profile.default]
-solc_version = "0.8.23"
+solc_version = "0.8.24"
 evm_version = "shanghai"
 
 via_ir = true
